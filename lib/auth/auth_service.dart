@@ -15,19 +15,35 @@ class AuthService {
 
   Future<AuthResponse> signUpWithEmailPassword(
     String email,
-    String password,
-  ) async {
-    return await _supabase.auth.signUp(email: email, password: password);
+    String password, {
+    String? curso,
+    String? semestre,
+    String? periodo,
+  }) async {
+    final response = await _supabase.auth.signUp(
+      email: email,
+      password: password,
+      data: {'curso': curso, 'semestre': semestre, 'periodo': periodo},
+    );
+
+    return response;
   }
 
   Future<void> signOut() async {
     await _supabase.auth.signOut();
   }
 
-  // Mandando para o supabase as informações
+  // Get current user information
+  User? getCurrentUser() {
+    return _supabase.auth.currentUser;
+  }
+
   String? getCurrentUserEmail() {
-    final session = _supabase.auth.currentSession;
-    final User = session?.user;
-    return User?.email;
+    return getCurrentUser()?.email;
+  }
+
+  // Get user profile data
+  Map<String, dynamic>? getCurrentUserData() {
+    return getCurrentUser()?.userMetadata;
   }
 }

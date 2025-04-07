@@ -1,3 +1,6 @@
+//Retornar Segunda-Feira e aprimorar o CSS.
+//Estilos pegar do Figma https://www.figma.com/proto/cv1L1sXtiqvwtd2twQHK1u/Untitled?node-id=43-41&t=6PMs2qkGmWoDHfS2-1&scaling=min-zoom&content-scaling=fixed&page-id=41%3A29&starting-point-node-id=43%3A41
+
 import 'package:flutter/material.dart';
 import 'package:projectflutter/auth/auth_gate.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';

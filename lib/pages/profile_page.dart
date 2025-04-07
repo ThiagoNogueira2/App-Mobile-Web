@@ -17,17 +17,35 @@ class _ProfilePageState extends State<ProfilePage> {
 
   @override
   Widget build(BuildContext context) {
-    final currentEmail = authService.getCurrentUserEmail();
+    final currentUser = authService.getCurrentUser();
+
+    final userData = authService.getCurrentUserData();
 
     return Scaffold(
       appBar: AppBar(
         title: const Text("Bem vindo!"),
         actions: [
-          //Logout button
           IconButton(onPressed: logout, icon: const Icon(Icons.logout)),
         ],
       ),
-      body: Center(child: Text(currentEmail.toString())),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text("Email: ${currentUser?.email ?? ''}"),
+            const SizedBox(height: 8),
+
+            Text("Curso: ${userData?['curso'] ?? 'Não informado'}"),
+            const SizedBox(height: 8),
+
+            Text("Semestre: ${userData?['semestre'] ?? 'Não informado'}"),
+            const SizedBox(height: 8),
+
+            Text("Período: ${userData?['periodo'] ?? 'Não informado'}"),
+          ],
+        ),
+      ),
     );
   }
 }

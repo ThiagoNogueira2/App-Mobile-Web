@@ -11,25 +11,37 @@ class RegisterPage extends StatefulWidget {
 class _RegisterPageState extends State<RegisterPage> {
   final authService = AuthService();
 
-  // Textos sendo controlados
+  // Text controllers
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
-  final _confirmPasswordControler = TextEditingController();
+  final _confirmPasswordController = TextEditingController();
+  final _cursoController = TextEditingController();
+  final _semestreController = TextEditingController();
+  final _periodoController = TextEditingController();
 
   void signUp() async {
     final email = _emailController.text;
     final password = _passwordController.text;
-    final confirmePassword = _confirmPasswordControler.text;
+    final confirmPassword = _confirmPasswordController.text;
+    final curso = _cursoController.text;
+    final semestre = _semestreController.text;
+    final periodo = _periodoController.text;
 
-    if (password != confirmePassword) {
+    if (password != confirmPassword) {
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(const SnackBar(content: Text("Passwords")));
+      ).showSnackBar(const SnackBar(content: Text("Passwords do not match")));
       return;
     }
 
     try {
-      await authService.signUpWithEmailPassword(email, password);
+      await authService.signUpWithEmailPassword(
+        email,
+        password,
+        curso: curso,
+        semestre: semestre,
+        periodo: periodo,
+      );
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(
@@ -42,7 +54,7 @@ class _RegisterPageState extends State<RegisterPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text("Sign Up")),
+      appBar: AppBar(title: const Text("Sign Up")),
       body: ListView(
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 50),
         children: [
@@ -50,18 +62,31 @@ class _RegisterPageState extends State<RegisterPage> {
             controller: _emailController,
             decoration: const InputDecoration(labelText: "Email"),
           ),
-          //Senha
+
           TextField(
             controller: _passwordController,
             decoration: const InputDecoration(labelText: "Password"),
             obscureText: true,
           ),
 
-          //Confirmar Senha
           TextField(
-            controller: _confirmPasswordControler,
+            controller: _confirmPasswordController,
             decoration: const InputDecoration(labelText: "Confirm Password"),
             obscureText: true,
+          ),
+
+          TextField(
+            controller: _cursoController,
+            decoration: const InputDecoration(labelText: "Curso"),
+          ),
+
+          TextField(
+            controller: _semestreController,
+            decoration: const InputDecoration(labelText: "Semestre"),
+          ),
+          TextField(
+            controller: _periodoController,
+            decoration: const InputDecoration(labelText: "Período"),
           ),
 
           const SizedBox(height: 12),
