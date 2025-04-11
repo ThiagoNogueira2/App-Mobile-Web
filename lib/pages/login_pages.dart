@@ -44,7 +44,7 @@ class _LoginPageState extends State<LoginPage> {
           Container(
             decoration: const BoxDecoration(
               image: DecorationImage(
-                image: AssetImage('assets/images/faculdade.jpg'),
+                image: AssetImage('assets/images/faculdade.jpeg'),
                 fit: BoxFit.cover,
               ),
             ),
@@ -129,55 +129,68 @@ class _LoginPageState extends State<LoginPage> {
                     ),
                   ),
 
-                  const SizedBox(height: 180),
+                  Center(
+                    child: SizedBox(
+                      width: 400,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const SizedBox(height: 180),
 
-                  // Campo Email
-                  TextField(
-                    controller: _emailController,
-                    style: const TextStyle(color: Colors.white),
-                    decoration: const InputDecoration(
-                      labelText: 'Email',
-                      labelStyle: TextStyle(color: Colors.white),
-                      enabledBorder: UnderlineInputBorder(
-                        borderSide: BorderSide(color: Colors.white),
-                      ),
-                      focusedBorder: UnderlineInputBorder(
-                        borderSide: BorderSide(color: Colors.green),
+                          // Campo Email
+                          TextField(
+                            controller: _emailController,
+                            style: const TextStyle(color: Colors.white),
+                            decoration: const InputDecoration(
+                              labelText: 'Email',
+                              labelStyle: TextStyle(color: Colors.white),
+                              enabledBorder: UnderlineInputBorder(
+                                borderSide: BorderSide(color: Colors.white),
+                              ),
+                              focusedBorder: UnderlineInputBorder(
+                                borderSide: BorderSide(color: Colors.green),
+                              ),
+                            ),
+                          ),
+
+                          const SizedBox(height: 30),
+
+                          // Campo Senha
+                          TextField(
+                            controller: _passwordController,
+                            obscureText: true,
+                            style: const TextStyle(color: Colors.white),
+                            decoration: const InputDecoration(
+                              labelText: 'Password',
+                              labelStyle: TextStyle(color: Colors.white),
+                              enabledBorder: UnderlineInputBorder(
+                                borderSide: BorderSide(color: Colors.white),
+                              ),
+                              focusedBorder: UnderlineInputBorder(
+                                borderSide: BorderSide(color: Colors.green),
+                              ),
+                            ),
+                          ),
+
+                          const SizedBox(height: 10),
+
+                          const Align(
+                            alignment: Alignment.centerRight,
+                            child: Text(
+                              "Forgot your password?",
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 12,
+                              ),
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                   ),
 
-                  const SizedBox(height: 30),
-
-                  // Campo Senha
-                  TextField(
-                    controller: _passwordController,
-                    obscureText: true,
-                    style: const TextStyle(color: Colors.white),
-                    decoration: const InputDecoration(
-                      labelText: 'Password',
-                      labelStyle: TextStyle(color: Colors.white),
-                      enabledBorder: UnderlineInputBorder(
-                        borderSide: BorderSide(color: Colors.white),
-                      ),
-                      focusedBorder: UnderlineInputBorder(
-                        borderSide: BorderSide(color: Colors.green),
-                      ),
-                    ),
-                  ),
-
-                  const SizedBox(height: 10),
-
-                  const Align(
-                    alignment: Alignment.centerRight,
-                    child: Text(
-                      "Forgot your password?",
-                      style: TextStyle(color: Colors.white, fontSize: 12),
-                    ),
-                  ),
-
-                  const SizedBox(height: 140), // espaço maior antes dos botões
                   // Botões
+                  const SizedBox(height: 140), // espaço maior antes dos botões
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [

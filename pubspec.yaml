@@ -23,4 +23,5 @@ flutter:
   uses-material-design: true
 
   assets:
-      - assets/images/faculdade.jpg
+      - assets/images/faculdade.jpeg
+      - assets/images/faculdade1.jpeg

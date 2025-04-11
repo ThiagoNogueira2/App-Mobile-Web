@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:projectflutter/auth/auth_service.dart';
+import 'package:projectflutter/pages/login_pages.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class RegisterPage extends StatefulWidget {
   const RegisterPage({super.key});
@@ -20,12 +22,12 @@ class _RegisterPageState extends State<RegisterPage> {
   final _periodoController = TextEditingController();
 
   void signUp() async {
-    final email = _emailController.text;
+    final email = _emailController.text.trim();
     final password = _passwordController.text;
     final confirmPassword = _confirmPasswordController.text;
-    final curso = _cursoController.text;
-    final semestre = _semestreController.text;
-    final periodo = _periodoController.text;
+    final curso = _cursoController.text.trim();
+    final semestreText = _semestreController.text.trim();
+    final periodo = _periodoController.text.trim();
 
     if (password != confirmPassword) {
       ScaffoldMessenger.of(
@@ -34,19 +36,73 @@ class _RegisterPageState extends State<RegisterPage> {
       return;
     }
 
+    int? semestre;
     try {
-      await authService.signUpWithEmailPassword(
+      semestre = int.parse(semestreText);
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Semestre precisa ser um número válido.")),
+      );
+      return;
+    }
+
+    try {
+      // 1. Cadastra o usuário no Supabase Auth
+      final response = await authService.signUpWithEmailPassword(
         email,
         password,
         curso: curso,
         semestre: semestre,
         periodo: periodo,
       );
+
+      // 2. Recupera o usuário autenticado (caso use email confirmation)
+      final user = response.user ?? Supabase.instance.client.auth.currentUser;
+
+      if (user == null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text(
+              "Erro: usuário não retornado. Verifique se o e-mail exige confirmação.",
+            ),
+          ),
+        );
+        return;
+      }
+
+      // 3. Insere os dados na tabela 'users'
+      final supabase = Supabase.instance.client;
+      final insertResponse = await supabase.from('users').upsert({
+        'id': user.id,
+        'email': user.email,
+        'curso': curso,
+        'semestre': semestre,
+        'periodo': periodo,
+      });
+
+      if (insertResponse.error != null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(
+              "Erro ao inserir na tabela users: ${insertResponse.error!.message}",
+            ),
+          ),
+        );
+        return;
+      }
+
+      // 4. Redireciona para tela de login
+      if (mounted) {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (context) => const LoginPage()),
+        );
+      }
     } catch (e) {
       if (mounted) {
         ScaffoldMessenger.of(
           context,
-        ).showSnackBar(SnackBar(content: Text("Error: $e")));
+        ).showSnackBar(SnackBar(content: Text("Erro ao cadastrar: $e")));
       }
     }
   }
@@ -54,45 +110,202 @@ class _RegisterPageState extends State<RegisterPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text("Sign Up")),
-      body: ListView(
-        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 50),
+      extendBodyBehindAppBar: true,
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        leading: BackButton(color: Colors.black),
+      ),
+      body: Stack(
         children: [
-          TextField(
-            controller: _emailController,
-            decoration: const InputDecoration(labelText: "Email"),
+          Container(
+            decoration: const BoxDecoration(
+              image: DecorationImage(
+                image: AssetImage('assets/images/faculdade1.jpeg'),
+                fit: BoxFit.cover,
+              ),
+            ),
           ),
-
-          TextField(
-            controller: _passwordController,
-            decoration: const InputDecoration(labelText: "Password"),
-            obscureText: true,
+          Container(color: Colors.black.withOpacity(0.4)),
+          SingleChildScrollView(
+            padding: const EdgeInsets.symmetric(horizontal: 24.0),
+            child: SafeArea(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const SizedBox(height: 30),
+                  Center(
+                    child: RichText(
+                      text: const TextSpan(
+                        children: [
+                          TextSpan(
+                            text: "Campus",
+                            style: TextStyle(
+                              fontSize: 42,
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          TextSpan(
+                            text: "M",
+                            style: TextStyle(
+                              fontSize: 42,
+                              color: Colors.black,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          WidgetSpan(
+                            child: Icon(
+                              Icons.location_on,
+                              color: Colors.green,
+                              size: 42,
+                            ),
+                          ),
+                          TextSpan(
+                            text: "p",
+                            style: TextStyle(
+                              fontSize: 42,
+                              color: Colors.black,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 160),
+                  Padding(
+                    padding: const EdgeInsets.only(left: 95),
+                    child: RichText(
+                      text: const TextSpan(
+                        children: [
+                          TextSpan(
+                            text: "Sign ",
+                            style: TextStyle(
+                              fontSize: 38,
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          TextSpan(
+                            text: "up",
+                            style: TextStyle(
+                              fontSize: 38,
+                              color: Colors.green,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  Center(
+                    child: SizedBox(
+                      width: 400,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          const SizedBox(height: 60),
+                          _buildTextField(_emailController, 'Email'),
+                          const SizedBox(height: 18),
+                          _buildTextField(
+                            _passwordController,
+                            'Password',
+                            obscure: true,
+                          ),
+                          const SizedBox(height: 18),
+                          _buildTextField(
+                            _confirmPasswordController,
+                            'Confirm Password',
+                            obscure: true,
+                          ),
+                          const SizedBox(height: 18),
+                          _buildTextField(_cursoController, 'Curso'),
+                          const SizedBox(height: 18),
+                          _buildTextField(_semestreController, 'Semestre'),
+                          const SizedBox(height: 18),
+                          _buildTextField(_periodoController, 'Período'),
+                        ],
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 35),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: [
+                      OutlinedButton(
+                        onPressed: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => const LoginPage(),
+                            ),
+                          );
+                        },
+                        style: OutlinedButton.styleFrom(
+                          foregroundColor: Colors.white,
+                          backgroundColor: Colors.black,
+                          side: const BorderSide(color: Colors.white),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(30),
+                          ),
+                        ),
+                        child: const Padding(
+                          padding: EdgeInsets.symmetric(
+                            horizontal: 24,
+                            vertical: 12,
+                          ),
+                          child: Text("Voltar"),
+                        ),
+                      ),
+                      OutlinedButton(
+                        onPressed: signUp,
+                        style: OutlinedButton.styleFrom(
+                          foregroundColor: Colors.white,
+                          backgroundColor: Colors.green,
+                          side: const BorderSide(color: Colors.green),
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(30),
+                          ),
+                        ),
+                        child: const Padding(
+                          padding: EdgeInsets.symmetric(
+                            horizontal: 24,
+                            vertical: 12,
+                          ),
+                          child: Text("Sign up"),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
           ),
-
-          TextField(
-            controller: _confirmPasswordController,
-            decoration: const InputDecoration(labelText: "Confirm Password"),
-            obscureText: true,
-          ),
-
-          TextField(
-            controller: _cursoController,
-            decoration: const InputDecoration(labelText: "Curso"),
-          ),
-
-          TextField(
-            controller: _semestreController,
-            decoration: const InputDecoration(labelText: "Semestre"),
-          ),
-          TextField(
-            controller: _periodoController,
-            decoration: const InputDecoration(labelText: "Período"),
-          ),
-
-          const SizedBox(height: 12),
-
-          ElevatedButton(onPressed: signUp, child: const Text("Sign Up")),
         ],
+      ),
+    );
+  }
+
+  // Componente reutilizável de TextField
+  Widget _buildTextField(
+    TextEditingController controller,
+    String label, {
+    bool obscure = false,
+  }) {
+    return TextField(
+      controller: controller,
+      obscureText: obscure,
+      style: const TextStyle(color: Colors.white),
+      decoration: InputDecoration(
+        labelText: label,
+        labelStyle: const TextStyle(color: Colors.white),
+        enabledBorder: const UnderlineInputBorder(
+          borderSide: BorderSide(color: Colors.white),
+        ),
+        focusedBorder: const UnderlineInputBorder(
+          borderSide: BorderSide(color: Colors.green),
+        ),
       ),
     );
   }
