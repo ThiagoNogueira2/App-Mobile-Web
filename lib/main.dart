@@ -3,6 +3,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:projectflutter/auth/auth_gate.dart';
+import 'package:projectflutter/pages/welcome_page.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 void main() async {
@@ -22,7 +23,8 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return const MaterialApp(
-      home: AuthGate(),
+      debugShowCheckedModeBanner: false,
+      home: WelcomePage(), //começa na tela de boas-vindas
     ); // <-- Fechamento correto do widget
   }
 }

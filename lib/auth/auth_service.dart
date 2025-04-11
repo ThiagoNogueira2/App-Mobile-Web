@@ -20,7 +20,7 @@ class AuthService {
     required int semestre,
     required String periodo,
   }) async {
-    // 1. Cadastra o usuário no Supabase Auth
+    // Cadastra o usuário no Supabase Auth com user_metadata (data)
     final response = await _supabase.auth.signUp(
       email: email,
       password: password,
@@ -29,7 +29,7 @@ class AuthService {
 
     final user = response.user;
 
-    // 2. Insere os dados na tabela "users"
+    // Insere os dados também na tabela "users"
     if (user != null) {
       await _registerUserInUsersTable(
         user.id,
@@ -50,7 +50,6 @@ class AuthService {
     required int semestre,
     required String periodo,
   }) async {
-    // Verifica se o usuário já existe na tabela (opcional)
     final existing =
         await _supabase
             .from('users')
@@ -74,7 +73,6 @@ class AuthService {
     await _supabase.auth.signOut();
   }
 
-  // Get current user information
   User? getCurrentUser() {
     return _supabase.auth.currentUser;
   }
@@ -83,7 +81,6 @@ class AuthService {
     return getCurrentUser()?.email;
   }
 
-  // Get user profile data
   Map<String, dynamic>? getCurrentUserData() {
     return getCurrentUser()?.userMetadata;
   }

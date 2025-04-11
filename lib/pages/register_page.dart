@@ -32,7 +32,7 @@ class _RegisterPageState extends State<RegisterPage> {
     if (password != confirmPassword) {
       ScaffoldMessenger.of(
         context,
-      ).showSnackBar(const SnackBar(content: Text("Passwords do not match")));
+      ).showSnackBar(const SnackBar(content: Text("As senhas não coincidem")));
       return;
     }
 
@@ -47,7 +47,6 @@ class _RegisterPageState extends State<RegisterPage> {
     }
 
     try {
-      // 1. Cadastra o usuário no Supabase Auth
       final response = await authService.signUpWithEmailPassword(
         email,
         password,
@@ -56,7 +55,6 @@ class _RegisterPageState extends State<RegisterPage> {
         periodo: periodo,
       );
 
-      // 2. Recupera o usuário autenticado (caso use email confirmation)
       final user = response.user ?? Supabase.instance.client.auth.currentUser;
 
       if (user == null) {
@@ -70,28 +68,7 @@ class _RegisterPageState extends State<RegisterPage> {
         return;
       }
 
-      // 3. Insere os dados na tabela 'users'
-      final supabase = Supabase.instance.client;
-      final insertResponse = await supabase.from('users').upsert({
-        'id': user.id,
-        'email': user.email,
-        'curso': curso,
-        'semestre': semestre,
-        'periodo': periodo,
-      });
-
-      if (insertResponse.error != null) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text(
-              "Erro ao inserir na tabela users: ${insertResponse.error!.message}",
-            ),
-          ),
-        );
-        return;
-      }
-
-      // 4. Redireciona para tela de login
+      // Redirecionar para login
       if (mounted) {
         Navigator.pushReplacement(
           context,
@@ -99,11 +76,9 @@ class _RegisterPageState extends State<RegisterPage> {
         );
       }
     } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(content: Text("Erro ao cadastrar: $e")));
-      }
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text("Erro ao cadastrar: $e")));
     }
   }
 
@@ -175,14 +150,14 @@ class _RegisterPageState extends State<RegisterPage> {
                   ),
                   const SizedBox(height: 160),
                   Padding(
-                    padding: const EdgeInsets.only(left: 95),
+                    padding: const EdgeInsets.only(left: 85),
                     child: RichText(
                       text: const TextSpan(
                         children: [
                           TextSpan(
                             text: "Sign ",
                             style: TextStyle(
-                              fontSize: 38,
+                              fontSize: 40,
                               color: Colors.white,
                               fontWeight: FontWeight.bold,
                             ),
@@ -190,7 +165,7 @@ class _RegisterPageState extends State<RegisterPage> {
                           TextSpan(
                             text: "up",
                             style: TextStyle(
-                              fontSize: 38,
+                              fontSize: 40,
                               color: Colors.green,
                               fontWeight: FontWeight.bold,
                             ),
@@ -287,7 +262,6 @@ class _RegisterPageState extends State<RegisterPage> {
     );
   }
 
-  // Componente reutilizável de TextField
   Widget _buildTextField(
     TextEditingController controller,
     String label, {

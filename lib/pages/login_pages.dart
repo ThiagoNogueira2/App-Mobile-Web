@@ -105,27 +105,34 @@ class _LoginPageState extends State<LoginPage> {
 
                   const SizedBox(height: 90),
 
-                  // Título "Sign in"
-                  RichText(
-                    text: const TextSpan(
-                      children: [
-                        TextSpan(
-                          text: "Sign ",
-                          style: TextStyle(
-                            fontSize: 38,
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold,
-                          ),
+                  Padding(
+                    padding: const EdgeInsets.only(
+                      right: 60.0,
+                    ), // aumenta esse valor pra empurrar mais pra direita
+                    child: Align(
+                      alignment: Alignment.centerRight,
+                      child: RichText(
+                        text: const TextSpan(
+                          children: [
+                            TextSpan(
+                              text: "Sign ",
+                              style: TextStyle(
+                                fontSize: 38,
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                            TextSpan(
+                              text: "in",
+                              style: TextStyle(
+                                fontSize: 38,
+                                color: Colors.green,
+                                fontWeight: FontWeight.bold,
+                              ),
+                            ),
+                          ],
                         ),
-                        TextSpan(
-                          text: "in",
-                          style: TextStyle(
-                            fontSize: 38,
-                            color: Colors.green,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ],
+                      ),
                     ),
                   ),
 
