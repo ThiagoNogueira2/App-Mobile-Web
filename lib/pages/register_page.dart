@@ -115,6 +115,7 @@ class _RegisterPageState extends State<RegisterPage> {
         elevation: 0,
         leading: BackButton(color: Colors.black),
       ),
+      // singlechild -
       body: Stack(
         children: [
           Container(

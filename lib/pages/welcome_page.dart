@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:projectflutter/auth/auth_gate.dart';
+import 'package:lottie/lottie.dart';
 
 class WelcomePage extends StatelessWidget {
   const WelcomePage({super.key});
@@ -14,9 +15,7 @@ class WelcomePage extends StatelessWidget {
           Container(
             decoration: const BoxDecoration(
               image: DecorationImage(
-                image: AssetImage(
-                  'assets/images/welcome.jpeg',
-                ), // Imagem de fundo
+                image: AssetImage('assets/images/welcome.jpeg'),
                 fit: BoxFit.cover,
               ),
             ),
@@ -31,6 +30,14 @@ class WelcomePage extends StatelessWidget {
               children: [
                 const Spacer(),
 
+                // 🎞️ Animação Lottie
+                SizedBox(
+                  height: 180,
+                  child: Lottie.asset('assets/animation/teste1.json'),
+                ),
+
+                const SizedBox(height: 20),
+
                 // 📝 Título
                 const Text(
                   'Bem-vindo ao App!',
@@ -42,7 +49,8 @@ class WelcomePage extends StatelessWidget {
                   ),
                 ),
 
-                const SizedBox(height: 24), // Menor espaço entre texto e botão
+                const SizedBox(height: 24),
+
                 // 🟢 Botão INICIAR
                 Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 32),
@@ -78,7 +86,7 @@ class WelcomePage extends StatelessWidget {
                   ),
                 ),
 
-                const SizedBox(height: 40), // Espaço inferior
+                const SizedBox(height: 40),
               ],
             ),
           ),

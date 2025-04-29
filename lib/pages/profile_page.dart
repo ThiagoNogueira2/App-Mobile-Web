@@ -49,6 +49,8 @@ class _ProfilePageState extends State<ProfilePage> {
           IconButton(onPressed: logout, icon: const Icon(Icons.logout)),
         ],
       ),
+
+      // aqui é para ser nossa tela de config
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(

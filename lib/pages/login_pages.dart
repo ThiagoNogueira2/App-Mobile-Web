@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:projectflutter/auth/auth_service.dart';
+import 'package:projectflutter/pages/home_pages.dart';
 import 'package:projectflutter/pages/register_page.dart';
-import 'package:projectflutter/pages/profile_page.dart'; // Importa a tela para onde vai após o login
+import 'package:projectflutter/utils/app_dimensions.dart'; // ✅ Importado
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -32,7 +33,7 @@ class _LoginPageState extends State<LoginPage> {
       if (mounted) {
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (_) => const ProfilePage()),
+          MaterialPageRoute(builder: (_) => const PaginaInicial()),
         );
       }
     } catch (e) {
@@ -60,6 +61,8 @@ class _LoginPageState extends State<LoginPage> {
 
   @override
   Widget build(BuildContext context) {
+    AppDimensions.init(context); // ✅ Inicializa dimensões
+
     return Scaffold(
       extendBodyBehindAppBar: true,
       appBar: AppBar(
@@ -79,12 +82,14 @@ class _LoginPageState extends State<LoginPage> {
           ),
           Container(color: Colors.black.withOpacity(0.4)),
           SingleChildScrollView(
-            padding: const EdgeInsets.symmetric(horizontal: 24.0),
+            padding: EdgeInsets.symmetric(
+              horizontal: AppDimensions.paddingMedium,
+            ),
             child: SafeArea(
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const SizedBox(height: 30),
+                  SizedBox(height: AppDimensions.blockHeight * 3),
                   Center(
                     child: RichText(
                       text: const TextSpan(
@@ -124,9 +129,11 @@ class _LoginPageState extends State<LoginPage> {
                       ),
                     ),
                   ),
-                  const SizedBox(height: 90),
+                  SizedBox(height: AppDimensions.blockHeight * 8),
                   Padding(
-                    padding: const EdgeInsets.only(right: 60.0),
+                    padding: EdgeInsets.only(
+                      right: AppDimensions.blockWidth * 15,
+                    ),
                     child: Align(
                       alignment: Alignment.centerRight,
                       child: RichText(
@@ -155,21 +162,22 @@ class _LoginPageState extends State<LoginPage> {
                   ),
                   Center(
                     child: SizedBox(
-                      width: 400,
+                      width: AppDimensions.screenWidth * 0.9,
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const SizedBox(height: 180),
+                          SizedBox(height: AppDimensions.blockHeight * 20),
                           TextField(
                             controller: _emailController,
-                            cursorColor: Colors.white, // ✅ Cursor branco
+                            cursorColor: Colors.white,
                             style: const TextStyle(color: Colors.white),
                             decoration: InputDecoration(
                               labelText: 'Email',
                               labelStyle: const TextStyle(color: Colors.white),
                               enabledBorder: UnderlineInputBorder(
                                 borderSide: BorderSide(
-                                  color: _emailError ? Colors.red : Colors.white,
+                                  color:
+                                      _emailError ? Colors.red : Colors.white,
                                 ),
                               ),
                               focusedBorder: const UnderlineInputBorder(
@@ -179,24 +187,28 @@ class _LoginPageState extends State<LoginPage> {
                               errorStyle: const TextStyle(color: Colors.red),
                             ),
                           ),
-                          const SizedBox(height: 30),
+                          SizedBox(height: AppDimensions.blockHeight * 3),
                           TextField(
                             controller: _passwordController,
                             obscureText: true,
-                            cursorColor: Colors.white, // ✅ Cursor branco
+                            cursorColor: Colors.white,
                             style: const TextStyle(color: Colors.white),
                             decoration: InputDecoration(
                               labelText: 'Password',
                               labelStyle: const TextStyle(color: Colors.white),
                               enabledBorder: UnderlineInputBorder(
                                 borderSide: BorderSide(
-                                  color: _passwordError ? Colors.red : Colors.white,
+                                  color:
+                                      _passwordError
+                                          ? Colors.red
+                                          : Colors.white,
                                 ),
                               ),
                               focusedBorder: const UnderlineInputBorder(
                                 borderSide: BorderSide(color: Colors.white),
                               ),
-                              errorText: _passwordError ? 'Senha inválida' : null,
+                              errorText:
+                                  _passwordError ? 'Senha inválida' : null,
                               errorStyle: const TextStyle(color: Colors.red),
                             ),
                           ),
@@ -215,7 +227,7 @@ class _LoginPageState extends State<LoginPage> {
                       ),
                     ),
                   ),
-                  const SizedBox(height: 140),
+                  SizedBox(height: AppDimensions.blockHeight * 14),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                     children: [
@@ -236,12 +248,12 @@ class _LoginPageState extends State<LoginPage> {
                             borderRadius: BorderRadius.circular(30),
                           ),
                         ),
-                        child: const Padding(
+                        child: Padding(
                           padding: EdgeInsets.symmetric(
-                            horizontal: 24,
-                            vertical: 12,
+                            horizontal: AppDimensions.blockWidth * 6,
+                            vertical: AppDimensions.blockHeight * 1.5,
                           ),
-                          child: Text("Sign up"),
+                          child: const Text("Sign up"),
                         ),
                       ),
                       OutlinedButton(
@@ -254,12 +266,12 @@ class _LoginPageState extends State<LoginPage> {
                             borderRadius: BorderRadius.circular(30),
                           ),
                         ),
-                        child: const Padding(
+                        child: Padding(
                           padding: EdgeInsets.symmetric(
-                            horizontal: 24,
-                            vertical: 12,
+                            horizontal: AppDimensions.blockWidth * 6,
+                            vertical: AppDimensions.blockHeight * 1.5,
                           ),
-                          child: Text("Login"),
+                          child: const Text("Login"),
                         ),
                       ),
                     ],
