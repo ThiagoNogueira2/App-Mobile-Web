@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:projectflutter/pages/profile_page.dart'; // Importando a página de perfil
 
 class PaginaInicial extends StatefulWidget {
   const PaginaInicial({super.key});
@@ -10,6 +11,13 @@ class PaginaInicial extends StatefulWidget {
 class _PaginaInicialState extends State<PaginaInicial> {
   int _indiceAtual = 0;
 
+  // Lista de páginas a serem exibidas com base no índice
+  final List<Widget> _pages = [
+    Container(), // Página de "Início" (você pode customizar essa parte)
+    Container(), // Página de "Agenda" (você pode customizar essa parte)
+    const ProfilePage(), // Página de "Perfil"
+  ];
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -20,7 +28,6 @@ class _PaginaInicialState extends State<PaginaInicial> {
           setState(() {
             _indiceAtual = index;
           });
-          // Aqui você pode navegar para outras páginas se necessário
         },
         selectedItemColor: Colors.blue,
         unselectedItemColor: Colors.grey,

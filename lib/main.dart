@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:projectflutter/auth/auth_gate.dart';
 import 'package:projectflutter/pages/welcome_page.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:projectflutter/routes/routes.dart';
 
 void main() async {
   // WidgetsFlutterBinding.ensureInitialized(); // Adicionado para evitar erro com async no main
@@ -22,9 +23,11 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
+    return MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: WelcomePage(), //começa na tela de boas-vindas
-    ); // <-- Fechamento correto do widget
+      title: 'Meu App Flutter',
+      initialRoute: AppRoutes.welcome,
+      routes: AppRoutes.routes,
+    );
   }
 }

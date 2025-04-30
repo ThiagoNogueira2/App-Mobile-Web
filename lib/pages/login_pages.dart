@@ -113,7 +113,7 @@ class _LoginPageState extends State<LoginPage> {
                           WidgetSpan(
                             child: Icon(
                               Icons.location_on,
-                              color: Color.fromARGB(255, 76, 175, 80),
+                              color: Color(0xFF4CAF50),
                               size: 42,
                             ),
                           ),
