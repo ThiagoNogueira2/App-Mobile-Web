@@ -17,8 +17,8 @@ class AppDimensions {
   }
 
   // Exemplo de medidas reutilizáveis
-  static double get paddingSmall => blockWidth * 2;
-  static double get paddingMedium => blockWidth * 4;
+  static double get paddingSmall => blockWidth * 5;
+  static double get paddingMedium => blockWidth * 10;
   static double get paddingLarge => blockWidth * 6;
 
   static double get fontSmall => blockWidth * 3.5;

@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart'; // ✅ Adiciona este import
 import 'package:projectflutter/auth/auth_service.dart';
 import 'package:projectflutter/pages/home_pages.dart';
 import 'package:projectflutter/pages/register_page.dart';
-import 'package:projectflutter/utils/app_dimensions.dart'; // ✅ Importado
+import 'package:projectflutter/utils/app_dimensions.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -61,7 +62,7 @@ class _LoginPageState extends State<LoginPage> {
 
   @override
   Widget build(BuildContext context) {
-    AppDimensions.init(context); // ✅ Inicializa dimensões
+    AppDimensions.init(context);
 
     return Scaffold(
       extendBodyBehindAppBar: true,
@@ -72,12 +73,11 @@ class _LoginPageState extends State<LoginPage> {
       ),
       body: Stack(
         children: [
-          Container(
-            decoration: const BoxDecoration(
-              image: DecorationImage(
-                image: AssetImage('assets/images/faculdade.jpeg'),
-                fit: BoxFit.cover,
-              ),
+          // 🔁 Troca o Container com DecorationImage por SVG
+          SizedBox.expand(
+            child: SvgPicture.asset(
+              'assets/images/imglogin.svg',
+              fit: BoxFit.fill,
             ),
           ),
           Container(color: Colors.black.withOpacity(0.4)),
@@ -113,7 +113,7 @@ class _LoginPageState extends State<LoginPage> {
                           WidgetSpan(
                             child: Icon(
                               Icons.location_on,
-                              color: Colors.green,
+                              color: Color.fromARGB(255, 76, 175, 80),
                               size: 42,
                             ),
                           ),
@@ -129,10 +129,10 @@ class _LoginPageState extends State<LoginPage> {
                       ),
                     ),
                   ),
-                  SizedBox(height: AppDimensions.blockHeight * 8),
+                  SizedBox(height: AppDimensions.blockHeight * 15),
                   Padding(
                     padding: EdgeInsets.only(
-                      right: AppDimensions.blockWidth * 15,
+                      right: AppDimensions.blockWidth * 22,
                     ),
                     child: Align(
                       alignment: Alignment.centerRight,
@@ -142,7 +142,7 @@ class _LoginPageState extends State<LoginPage> {
                             TextSpan(
                               text: "Sign ",
                               style: TextStyle(
-                                fontSize: 38,
+                                fontSize: 40,
                                 color: Colors.white,
                                 fontWeight: FontWeight.bold,
                               ),
@@ -150,7 +150,7 @@ class _LoginPageState extends State<LoginPage> {
                             TextSpan(
                               text: "in",
                               style: TextStyle(
-                                fontSize: 38,
+                                fontSize: 40,
                                 color: Colors.green,
                                 fontWeight: FontWeight.bold,
                               ),

@@ -14,6 +14,8 @@ dependencies:
   lottie: ^2.7.0  # ou a última versão disponível
   supabase_flutter: ^2.8.4
   cupertino_icons: ^1.0.8
+  flutter_svg: ^2.0.7 # ou a versão mais recente
+
 
 dev_dependencies:
   flutter_test:
@@ -29,6 +31,7 @@ flutter:
       - assets/images/welcome.jpeg
       - assets/animation/loading.json
       - assets/animation/
+      - assets/images/imglogin.svg
 
 
      
