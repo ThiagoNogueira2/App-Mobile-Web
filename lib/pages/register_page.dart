@@ -12,7 +12,7 @@ class RegisterPage extends StatefulWidget {
 
 class _RegisterPageState extends State<RegisterPage> {
   final authService = AuthService();
-
+  final _nomeController = TextEditingController();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
@@ -21,6 +21,7 @@ class _RegisterPageState extends State<RegisterPage> {
   final _periodoController = TextEditingController();
 
   void signUp() async {
+    final nome = _nomeController.text.trim();
     final email = _emailController.text.trim();
     final password = _passwordController.text;
     final confirmPassword = _confirmPasswordController.text;
@@ -72,6 +73,7 @@ class _RegisterPageState extends State<RegisterPage> {
       final response = await authService.signUpWithEmailPassword(
         email,
         password,
+        nome: nome,
         curso: curso,
         semestre: semestre,
         periodo: periodo,
@@ -205,7 +207,9 @@ class _RegisterPageState extends State<RegisterPage> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          const SizedBox(height: 60),
+                          const SizedBox(height: 18),
+                          _buildTextField(_nomeController, "Nome"),
+                          const SizedBox(height: 18),
                           _buildTextField(_emailController, 'Email'),
                           const SizedBox(height: 18),
                           _buildTextField(

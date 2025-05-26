@@ -16,24 +16,31 @@ class AuthService {
   Future<AuthResponse> signUpWithEmailPassword(
     String email,
     String password, {
+    required String nome,
     required String curso,
     required int semestre,
     required String periodo,
   }) async {
-    // Cadastra o usuário no Supabase Auth com user_metadata (data)
+    // Cadastra o usuário no Supabase Auth com user_metadata
     final response = await _supabase.auth.signUp(
       email: email,
       password: password,
-      data: {'curso': curso, 'semestre': semestre, 'periodo': periodo},
+      data: {
+        'nome': nome,
+        'curso': curso,
+        'semestre': semestre,
+        'periodo': periodo,
+      },
     );
 
     final user = response.user;
 
-    // Insere os dados também na tabela "users"
+    // Insere também na tabela "users"
     if (user != null) {
       await _registerUserInUsersTable(
         user.id,
         email,
+        nome: nome,
         curso: curso,
         semestre: semestre,
         periodo: periodo,
@@ -46,6 +53,7 @@ class AuthService {
   Future<void> _registerUserInUsersTable(
     String userId,
     String email, {
+    required String nome,
     required String curso,
     required int semestre,
     required String periodo,
@@ -61,6 +69,7 @@ class AuthService {
       await _supabase.from('users').insert({
         'id': userId,
         'email': email,
+        'nome': nome,
         'curso': curso,
         'semestre': semestre,
         'periodo': periodo,

@@ -15,6 +15,7 @@ dependencies:
   supabase_flutter: ^2.8.4
   cupertino_icons: ^1.0.8
   flutter_svg: ^2.0.7 # ou a versão mais recente
+  image_picker: ^0.8.7+3
 
 
 dev_dependencies:
@@ -26,12 +27,7 @@ flutter:
   uses-material-design: true
 
   assets:
-      - assets/images/faculdade.jpeg
-      - assets/images/faculdade1.jpeg
-      - assets/images/welcome.jpeg
-      - assets/animation/loading.json
-      - assets/animation/
-      - assets/images/imglogin.svg
-
+    - assets/images/
+    - assets/animation/
 
      

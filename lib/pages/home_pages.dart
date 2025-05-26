@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:projectflutter/pages/profile_page.dart'; // Importando a página de perfil
+import 'package:projectflutter/pages/profile_page.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class PaginaInicial extends StatefulWidget {
   const PaginaInicial({super.key});
@@ -10,18 +11,60 @@ class PaginaInicial extends StatefulWidget {
 
 class _PaginaInicialState extends State<PaginaInicial> {
   int _indiceAtual = 0;
+  String _nomeUsuario = 'Carregando...';
 
-  // Lista de páginas a serem exibidas com base no índice
-  final List<Widget> _pages = [
-    Container(), // Página de "Início" (você pode customizar essa parte)
-    Container(), // Página de "Agenda" (você pode customizar essa parte)
-    const ProfilePage(), // Página de "Perfil"
-  ];
+  @override
+  void initState() {
+    super.initState();
+    _carregarNomeUsuario();
+  }
+
+  Future<void> _carregarNomeUsuario() async {
+    final supabase = Supabase.instance.client;
+    final user = supabase.auth.currentUser;
+
+    if (user == null) {
+      setState(() {
+        _nomeUsuario = 'Visitante';
+      });
+      return;
+    }
+
+    try {
+      final data =
+          await supabase
+              .from('users')
+              .select('nome')
+              .eq('id', user.id)
+              .single();
+
+      print('Dados do usuário recebidos: $data');
+
+      if (data != null && data['nome'] != null) {
+        setState(() {
+          _nomeUsuario = data['nome'];
+        });
+      } else {
+        setState(() {
+          _nomeUsuario = 'Usuário';
+        });
+      }
+    } catch (e) {
+      print('Erro ao buscar nome do usuário: $e');
+      setState(() {
+        _nomeUsuario = 'Usuário';
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
+    // Construir as páginas dinamicamente para garantir atualização do nome
+    final pages = [buildHomePage(), buildAgendaPage(), const ProfilePage()];
+
     return Scaffold(
       backgroundColor: const Color(0xFFF5F7FA),
+      body: pages[_indiceAtual],
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _indiceAtual,
         onTap: (index) {
@@ -37,187 +80,168 @@ class _PaginaInicialState extends State<PaginaInicial> {
           BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Perfil'),
         ],
       ),
-      body: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Banner
-            Stack(
-              children: [
-                Container(
-                  height: 200,
-                  decoration: const BoxDecoration(
-                    image: DecorationImage(
-                      image: AssetImage('assets/images/img_carrosel.jpg'),
-                      fit: BoxFit.cover,
-                    ),
-                  ),
-                ),
-                const Positioned(
-                  top: 30,
-                  right: 20,
-                  child: Icon(
-                    Icons.notifications_none,
-                    color: Colors.white,
-                    size: 30,
-                  ),
-                ),
-                const Positioned(
-                  bottom: 20,
-                  left: 20,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Novo Espaço de Estudos',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 24,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      SizedBox(height: 5),
-                      Text(
-                        'Ambientes modernos já disponíveis',
-                        style: TextStyle(color: Colors.white70, fontSize: 16),
-                      ),
-                      SizedBox(height: 10),
-                      Text(
-                        'Saiba mais',
-                        style: TextStyle(
-                          color: Colors.amber,
-                          fontSize: 14,
-                          decoration: TextDecoration.underline,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
+    );
+  }
 
-            const SizedBox(height: 20),
-
-            // Boas-vindas
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20),
-              child: Row(
-                children: [
-                  const Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text('Bem-vindo(a),', style: TextStyle(fontSize: 18)),
-                        SizedBox(height: 5),
-                        Text(
-                          'João Silva',
-                          style: TextStyle(
-                            fontSize: 24,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        SizedBox(height: 8),
-                        Chip(
-                          label: Text('Semestre Outono 2025'),
-                          backgroundColor: Colors.grey,
-                          labelStyle: TextStyle(color: Colors.white),
-                        ),
-                      ],
-                    ),
+  Widget buildHomePage() {
+    return SingleChildScrollView(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          // Banner
+          Stack(
+            children: [
+              Container(
+                height: 200,
+                decoration: const BoxDecoration(
+                  image: DecorationImage(
+                    image: AssetImage('assets/images/imgcarrosel.jpg'),
+                    fit: BoxFit.cover,
                   ),
-                  const CircleAvatar(
-                    radius: 25,
-                    backgroundImage: AssetImage('assets/profile.jpg'),
-                  ),
-                ],
+                ),
               ),
-            ),
-
-            const SizedBox(height: 20),
-
-            // Ícones de Acesso Rápido
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceAround,
-                children: [
-                  _buildIconButton(Icons.calendar_today, 'Agenda'),
-                  _buildIconButton(Icons.book, 'Disciplinas'),
-                  _buildIconButton(Icons.grade, 'Notas'),
-                ],
-              ),
-            ),
-
-            const SizedBox(height: 30),
-
-            // Cartão de Próxima Aula
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20),
-              child: Container(
-                padding: const EdgeInsets.all(20),
-                decoration: BoxDecoration(
-                  color: const Color.fromARGB(255, 23, 179, 44),
-                  borderRadius: BorderRadius.circular(20),
+              const Positioned(
+                top: 30,
+                right: 20,
+                child: Icon(
+                  Icons.notifications_none,
+                  color: Colors.white,
+                  size: 30,
                 ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: const [
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'PRÓXIMA AULA',
-                          style: TextStyle(color: Colors.white70),
-                        ),
-                        SizedBox(height: 8),
-                        Text(
-                          'Algoritmos e Lógica',
-                          style: TextStyle(
-                            color: Colors.white,
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        SizedBox(height: 5),
-                        Text(
-                          '11:00 • Sala 201',
-                          style: TextStyle(color: Colors.white70),
-                        ),
-                      ],
-                    ),
+              ),
+              const Positioned(
+                bottom: 20,
+                left: 20,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
                     Text(
-                      '20 min',
+                      '',
                       style: TextStyle(
                         color: Colors.white,
                         fontSize: 24,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
+                    SizedBox(height: 5),
+                    Text(
+                      '',
+                      style: TextStyle(color: Colors.white70, fontSize: 16),
+                    ),
+                    SizedBox(height: 10),
+                    Text(
+                      '',
+                      style: TextStyle(
+                        color: Colors.amber,
+                        fontSize: 14,
+                        decoration: TextDecoration.underline,
+                      ),
+                    ),
                   ],
                 ),
               ),
-            ),
+            ],
+          ),
 
-            const SizedBox(height: 20),
+          const SizedBox(height: 20),
 
-            // Agenda do Dia
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 50),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: const [
-                  Text(
-                    'Agenda de Hoje',
-                    style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+          // Boas-vindas com nome dinâmico
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20),
+            child: Row(
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text(
+                        'Bem-vindo(a),',
+                        style: TextStyle(fontSize: 18),
+                      ),
+                      const SizedBox(height: 5),
+                      Text(
+                        _nomeUsuario,
+                        style: const TextStyle(
+                          fontSize: 24,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      const Chip(
+                        label: Text('Semestre Outono 2025'),
+                        backgroundColor: Colors.grey,
+                        labelStyle: TextStyle(color: Colors.white),
+                      ),
+                    ],
                   ),
-                  Text('Ver tudo', style: TextStyle(color: Colors.blue)),
-                ],
-              ),
+                ),
+                const CircleAvatar(radius: 25),
+              ],
             ),
+          ),
 
-            const SizedBox(height: 20),
-          ],
-        ),
+          const SizedBox(height: 20),
+
+          // Ícones de Acesso Rápido
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              children: [
+                _buildIconButton(Icons.calendar_today, 'Agenda'),
+                _buildIconButton(Icons.book, 'Disciplinas'),
+                _buildIconButton(Icons.grade, 'Notas'),
+              ],
+            ),
+          ),
+
+          const SizedBox(height: 30),
+
+          // Cartão de próxima aula
+          _buildProximaAulaCard(),
+
+          const SizedBox(height: 30),
+
+          _buildSectionHeader('Disciplinas da Semana', Icons.school),
+          _buildDisciplinaCard(
+            'Psicologia Social',
+            'Segunda - 08:00',
+            'Sala 101',
+          ),
+          _buildDisciplinaCard(
+            'Engenharia de Software',
+            'Terça - 13:00',
+            'Sala 305',
+          ),
+          _buildDisciplinaCard(
+            'Filosofia Moderna',
+            'Quarta - 15:00',
+            'Sala 202',
+          ),
+
+          const SizedBox(height: 30),
+
+          _buildSectionHeader('Avisos Recentes', Icons.announcement),
+          _buildAvisoCard(
+            'Palestra sobre Carreiras na Tecnologia',
+            'Quinta-feira às 18h no auditório.',
+          ),
+          _buildAvisoCard(
+            'Atualização no sistema acadêmico',
+            'Entre os dias 10 e 12 o sistema ficará fora do ar para manutenção.',
+          ),
+
+          const SizedBox(height: 30),
+        ],
+      ),
+    );
+  }
+
+  Widget buildAgendaPage() {
+    return const Center(
+      child: Text(
+        'Agenda - Conteúdo em construção',
+        style: TextStyle(fontSize: 18),
       ),
     );
   }
@@ -233,6 +257,110 @@ class _PaginaInicialState extends State<PaginaInicial> {
         const SizedBox(height: 8),
         Text(label),
       ],
+    );
+  }
+
+  Widget _buildProximaAulaCard() {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20),
+      child: Container(
+        padding: const EdgeInsets.all(20),
+        decoration: BoxDecoration(
+          color: const Color.fromARGB(255, 202, 206, 5),
+          borderRadius: BorderRadius.circular(20),
+        ),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: const [
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text('PRÓXIMA AULA', style: TextStyle(color: Colors.white70)),
+                SizedBox(height: 8),
+                Text(
+                  'Algoritmos e Lógica',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 20,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                SizedBox(height: 5),
+                Text(
+                  '11:00 • Sala 201',
+                  style: TextStyle(color: Colors.white70),
+                ),
+              ],
+            ),
+            Text(
+              '20 min',
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildSectionHeader(String title, IconData icon) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+      child: Row(
+        children: [
+          Icon(icon, color: Colors.blue),
+          const SizedBox(width: 10),
+          Text(
+            title,
+            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildDisciplinaCard(String titulo, String horario, String sala) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 6),
+      child: Card(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+        child: ListTile(
+          leading: const Icon(Icons.book, color: Colors.indigo),
+          title: Text(titulo),
+          subtitle: Text('$horario • $sala'),
+          trailing: const Icon(Icons.arrow_forward_ios),
+          onTap: () {},
+        ),
+      ),
+    );
+  }
+
+  Widget _buildAvisoCard(String titulo, String descricao) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+      child: Container(
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(12),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.grey.shade200,
+              blurRadius: 5,
+              offset: const Offset(0, 3),
+            ),
+          ],
+        ),
+        child: ListTile(
+          leading: const Icon(Icons.announcement, color: Colors.amber),
+          title: Text(titulo),
+          subtitle: Text(descricao),
+          trailing: const Icon(Icons.chevron_right),
+          onTap: () {},
+        ),
+      ),
     );
   }
 }
