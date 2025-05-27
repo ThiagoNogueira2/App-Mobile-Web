@@ -92,6 +92,20 @@ class _RegisterPageState extends State<RegisterPage> {
         return;
       }
 
+      final supabase = Supabase.instance.client;
+
+      // INSIRA O USUÁRIO NA TABELA USERS
+      await supabase
+          .from('users')
+          .update({
+            'nome': nome,
+            'email': email,
+            'curso': curso,
+            'semestre': semestre,
+            'periodo': periodo,
+          })
+          .eq('id', user.id);
+
       // Deslogar usuário após o cadastro
       await Supabase.instance.client.auth.signOut();
 

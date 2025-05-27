@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:projectflutter/pages/profile_page.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'buscarsala_page.dart';
 
 class PaginaInicial extends StatefulWidget {
   const PaginaInicial({super.key});
@@ -32,11 +33,7 @@ class _PaginaInicialState extends State<PaginaInicial> {
 
     try {
       final data =
-          await supabase
-              .from('users')
-              .select('nome')
-              .eq('id', user.id)
-              .single();
+          await supabase.from('users').select('*').eq('id', user.id).single();
 
       print('Dados do usuário recebidos: $data');
 
@@ -60,17 +57,35 @@ class _PaginaInicialState extends State<PaginaInicial> {
   @override
   Widget build(BuildContext context) {
     // Construir as páginas dinamicamente para garantir atualização do nome
-    final pages = [buildHomePage(), buildAgendaPage(), const ProfilePage()];
+    final pages = [
+      buildHomePage(),
+      buildAgendaPage(),
+
+      // buildPerfilPage(), // Faltando o perfil aqui!
+    ];
 
     return Scaffold(
       backgroundColor: const Color(0xFFF5F7FA),
-      body: pages[_indiceAtual],
+      body:
+          _nomeUsuario == 'Carregando...'
+              ? const Center(child: CircularProgressIndicator())
+              : Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                child: pages[_indiceAtual],
+              ),
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _indiceAtual,
         onTap: (index) {
-          setState(() {
-            _indiceAtual = index;
-          });
+          if (index == 1) {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (_) => const BuscarSalaPage()),
+            );
+          } else {
+            setState(() {
+              _indiceAtual = index;
+            });
+          }
         },
         selectedItemColor: Colors.blue,
         unselectedItemColor: Colors.grey,
@@ -238,12 +253,8 @@ class _PaginaInicialState extends State<PaginaInicial> {
   }
 
   Widget buildAgendaPage() {
-    return const Center(
-      child: Text(
-        'Agenda - Conteúdo em construção',
-        style: TextStyle(fontSize: 18),
-      ),
-    );
+    // Apenas retorna um container vazio, pois a navegação será feita pelo onTap do BottomNavigationBar
+    return const SizedBox.shrink();
   }
 
   Widget _buildIconButton(IconData icon, String label) {
