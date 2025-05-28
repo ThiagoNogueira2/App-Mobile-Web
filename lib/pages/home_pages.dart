@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:projectflutter/pages/profile_page.dart';
+import 'package:projectflutter/pages/perfil_page.dart'; // Importação correta
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'buscarsala_page.dart';
 
@@ -37,7 +38,7 @@ class _PaginaInicialState extends State<PaginaInicial> {
 
       print('Dados do usuário recebidos: $data');
 
-      if (data != null && data['nome'] != null) {
+      if (data['nome'] != null) {
         setState(() {
           _nomeUsuario = data['nome'];
         });
@@ -60,8 +61,7 @@ class _PaginaInicialState extends State<PaginaInicial> {
     final pages = [
       buildHomePage(),
       buildAgendaPage(),
-
-      // buildPerfilPage(), // Faltando o perfil aqui!
+      const PerfilPage(), // Adicionado PerfilPage como terceira página
     ];
 
     return Scaffold(

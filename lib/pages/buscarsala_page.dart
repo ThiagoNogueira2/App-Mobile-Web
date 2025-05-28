@@ -76,7 +76,7 @@ class _BuscarSalaPageState extends State<BuscarSalaPage> {
   ];
 
   String search = '';
-  int _selectedIndex = 1; // Agenda como selecionado
+  final int _selectedIndex = 1; // Agenda como selecionado
   String _periodoSelecionado = 'Todos';
 
   List<String> get periodos => [
@@ -212,8 +212,9 @@ class _BuscarSalaPageState extends State<BuscarSalaPage> {
                           )
                           .toList(),
                   onChanged: (value) {
-                    if (value != null)
+                    if (value != null) {
                       setState(() => _periodoSelecionado = value);
+                    }
                   },
                 ),
               ],

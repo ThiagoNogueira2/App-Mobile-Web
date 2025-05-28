@@ -4,6 +4,7 @@ import 'package:projectflutter/auth/auth_service.dart';
 import 'package:projectflutter/pages/home_pages.dart';
 import 'package:projectflutter/pages/register_page.dart';
 import 'package:projectflutter/utils/app_dimensions.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -24,7 +25,17 @@ class _LoginPageState extends State<LoginPage> {
     final password = _passwordController.text;
 
     try {
-      await authService.signInWithEmailPassword(email, password);
+      final response = await authService.signInWithEmailPassword(
+        email,
+        password,
+      );
+      // Garante que a sessão do usuário está salva
+      if (Supabase.instance.client.auth.currentUser == null &&
+          response.session != null) {
+        await Supabase.instance.client.auth.setSession(
+          response.session!.refreshToken!,
+        );
+      }
 
       setState(() {
         _emailError = false;

@@ -106,9 +106,7 @@ class _RegisterPageState extends State<RegisterPage> {
           })
           .eq('id', user.id);
 
-      // Deslogar usuário após o cadastro
-      await Supabase.instance.client.auth.signOut();
-
+      // Removido o signOut automático após cadastro
       if (mounted) {
         Navigator.pushReplacement(
           context,
