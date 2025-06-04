@@ -16,18 +16,34 @@ class _RegisterPageState extends State<RegisterPage> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   final _confirmPasswordController = TextEditingController();
-  final _cursoController = TextEditingController();
-  final _semestreController = TextEditingController();
-  final _periodoController = TextEditingController();
+
+  List<Map<String, dynamic>> _cursos = [];
+  int? _cursoSelecionadoId;
+  bool _carregandoCursos = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _buscarCursos();
+  }
+
+  Future<void> _buscarCursos() async {
+    final supabase = Supabase.instance.client;
+    final data = await supabase
+        .from('cursos')
+        .select('id, curso, semestre, periodo');
+    setState(() {
+      _cursos = List<Map<String, dynamic>>.from(data);
+      _carregandoCursos = false;
+    });
+  }
 
   void signUp() async {
     final nome = _nomeController.text.trim();
     final email = _emailController.text.trim();
     final password = _passwordController.text;
     final confirmPassword = _confirmPasswordController.text;
-    final curso = _cursoController.text.trim();
-    final semestreText = _semestreController.text.trim();
-    final periodo = _periodoController.text.trim();
+    final cursoId = _cursoSelecionadoId;
 
     final emailValid = RegExp(
       r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$',
@@ -36,9 +52,7 @@ class _RegisterPageState extends State<RegisterPage> {
     if (email.isEmpty ||
         password.isEmpty ||
         confirmPassword.isEmpty ||
-        curso.isEmpty ||
-        semestreText.isEmpty ||
-        periodo.isEmpty) {
+        cursoId == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text("Preencha todos os campos corretamente.")),
       );
@@ -59,24 +73,16 @@ class _RegisterPageState extends State<RegisterPage> {
       return;
     }
 
-    int? semestre;
     try {
-      semestre = int.parse(semestreText);
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Semestre precisa ser um número válido.")),
-      );
-      return;
-    }
-
-    try {
+      // Busca o nome do curso selecionado para salvar no metadata do Auth
+      final curso = _cursos.firstWhere((c) => c['id'] == cursoId);
+      final cursoNome = curso['curso'] ?? curso['nome'] ?? '';
       final response = await authService.signUpWithEmailPassword(
         email,
         password,
         nome: nome,
-        curso: curso,
-        semestre: semestre,
-        periodo: periodo,
+        curso: cursoNome,
+        cursoId: cursoId,
       );
 
       final user = response.user ?? Supabase.instance.client.auth.currentUser;
@@ -94,19 +100,12 @@ class _RegisterPageState extends State<RegisterPage> {
 
       final supabase = Supabase.instance.client;
 
-      // INSIRA O USUÁRIO NA TABELA USERS
+      // INSIRA O USUÁRIO NA TABELA USERS COM O CURSO_ID
       await supabase
           .from('users')
-          .update({
-            'nome': nome,
-            'email': email,
-            'curso': curso,
-            'semestre': semestre,
-            'periodo': periodo,
-          })
+          .update({'nome': nome, 'email': email, 'curso_id': cursoId})
           .eq('id', user.id);
 
-      // Removido o signOut automático após cadastro
       if (mounted) {
         Navigator.pushReplacement(
           context,
@@ -122,6 +121,11 @@ class _RegisterPageState extends State<RegisterPage> {
 
   @override
   Widget build(BuildContext context) {
+    final largura = MediaQuery.of(context).size.width;
+    final cursoSelecionado = _cursos.firstWhere(
+      (c) => c['id'] == _cursoSelecionadoId,
+      orElse: () => {},
+    );
     return Scaffold(
       extendBodyBehindAppBar: true,
       appBar: AppBar(
@@ -129,7 +133,6 @@ class _RegisterPageState extends State<RegisterPage> {
         elevation: 0,
         leading: BackButton(color: Colors.black),
       ),
-      // singlechild -
       body: Stack(
         children: [
           Container(
@@ -141,160 +144,221 @@ class _RegisterPageState extends State<RegisterPage> {
             ),
           ),
           Container(color: Colors.black.withOpacity(0.4)),
-          SingleChildScrollView(
-            padding: const EdgeInsets.symmetric(horizontal: 24.0),
-            child: SafeArea(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const SizedBox(height: 30),
-                  Center(
-                    child: RichText(
-                      text: const TextSpan(
-                        children: [
-                          TextSpan(
-                            text: "Campus",
-                            style: TextStyle(
-                              fontSize: 42,
-                              color: Colors.white,
-                              fontWeight: FontWeight.bold,
+          Center(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.symmetric(horizontal: 24.0),
+              child: SafeArea(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const SizedBox(height: 30),
+                    Center(
+                      child: RichText(
+                        text: const TextSpan(
+                          children: [
+                            TextSpan(
+                              text: "Campus",
+                              style: TextStyle(
+                                fontSize: 42,
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                              ),
                             ),
-                          ),
-                          TextSpan(
-                            text: "M",
-                            style: TextStyle(
-                              fontSize: 42,
-                              color: Colors.black,
-                              fontWeight: FontWeight.bold,
+                            TextSpan(
+                              text: "M",
+                              style: TextStyle(
+                                fontSize: 42,
+                                color: Colors.black,
+                                fontWeight: FontWeight.bold,
+                              ),
                             ),
-                          ),
-                          WidgetSpan(
-                            child: Icon(
-                              Icons.location_on,
-                              color: Colors.green,
-                              size: 42,
+                            WidgetSpan(
+                              child: Icon(
+                                Icons.location_on,
+                                color: Colors.green,
+                                size: 42,
+                              ),
                             ),
-                          ),
-                          TextSpan(
-                            text: "p",
-                            style: TextStyle(
-                              fontSize: 42,
-                              color: Colors.black,
-                              fontWeight: FontWeight.bold,
+                            TextSpan(
+                              text: "p",
+                              style: TextStyle(
+                                fontSize: 42,
+                                color: Colors.black,
+                                fontWeight: FontWeight.bold,
+                              ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
                     ),
-                  ),
-                  const SizedBox(height: 160),
-                  Padding(
-                    padding: const EdgeInsets.only(left: 85),
-                    child: RichText(
-                      text: const TextSpan(
-                        children: [
-                          TextSpan(
-                            text: "Sign ",
-                            style: TextStyle(
-                              fontSize: 40,
-                              color: Colors.white,
-                              fontWeight: FontWeight.bold,
+                    const SizedBox(height: 100),
+                    Padding(
+                      padding:
+                          largura < 500
+                              ? EdgeInsets.zero
+                              : const EdgeInsets.only(left: 85),
+                      child: RichText(
+                        text: const TextSpan(
+                          children: [
+                            TextSpan(
+                              text: "Sign ",
+                              style: TextStyle(
+                                fontSize: 40,
+                                color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                              ),
                             ),
-                          ),
-                          TextSpan(
-                            text: "up",
-                            style: TextStyle(
-                              fontSize: 40,
-                              color: Colors.green,
-                              fontWeight: FontWeight.bold,
+                            TextSpan(
+                              text: "up",
+                              style: TextStyle(
+                                fontSize: 40,
+                                color: Colors.green,
+                                fontWeight: FontWeight.bold,
+                              ),
                             ),
-                          ),
-                        ],
+                          ],
+                        ),
                       ),
                     ),
-                  ),
-                  Center(
-                    child: SizedBox(
-                      width: 400,
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          const SizedBox(height: 18),
-                          _buildTextField(_nomeController, "Nome"),
-                          const SizedBox(height: 18),
-                          _buildTextField(_emailController, 'Email'),
-                          const SizedBox(height: 18),
-                          _buildTextField(
-                            _passwordController,
-                            'Password',
-                            obscure: true,
-                          ),
-                          const SizedBox(height: 18),
-                          _buildTextField(
-                            _confirmPasswordController,
-                            'Confirm Password',
-                            obscure: true,
-                          ),
-                          const SizedBox(height: 18),
-                          _buildTextField(_cursoController, 'Curso'),
-                          const SizedBox(height: 18),
-                          _buildTextField(_semestreController, 'Semestre'),
-                          const SizedBox(height: 18),
-                          _buildTextField(_periodoController, 'Período'),
-                        ],
+                    Center(
+                      child: SizedBox(
+                        width: largura < 500 ? largura * 0.98 : 400,
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const SizedBox(height: 18),
+                            _buildTextField(_nomeController, "Nome"),
+                            const SizedBox(height: 18),
+                            _buildTextField(_emailController, 'Email'),
+                            const SizedBox(height: 18),
+                            _buildTextField(
+                              _passwordController,
+                              'Password',
+                              obscure: true,
+                            ),
+                            const SizedBox(height: 18),
+                            _buildTextField(
+                              _confirmPasswordController,
+                              'Confirm Password',
+                              obscure: true,
+                            ),
+                            const SizedBox(height: 18),
+                            _carregandoCursos
+                                ? const Center(
+                                  child: CircularProgressIndicator(),
+                                )
+                                : DropdownButtonFormField<int>(
+                                  value: _cursoSelecionadoId,
+                                  items:
+                                      _cursos
+                                          .map(
+                                            (curso) => DropdownMenuItem<int>(
+                                              value: curso['id'],
+                                              child: Text(
+                                                curso['curso'] ??
+                                                    curso['nome'] ??
+                                                    '',
+                                                style: const TextStyle(
+                                                  color: Colors.black,
+                                                ),
+                                              ),
+                                            ),
+                                          )
+                                          .toList(),
+                                  onChanged: (value) {
+                                    setState(() {
+                                      _cursoSelecionadoId = value;
+                                    });
+                                  },
+                                  decoration: const InputDecoration(
+                                    labelText: 'Curso',
+                                    labelStyle: TextStyle(color: Colors.white),
+                                    enabledBorder: UnderlineInputBorder(
+                                      borderSide: BorderSide(
+                                        color: Colors.white,
+                                      ),
+                                    ),
+                                    focusedBorder: UnderlineInputBorder(
+                                      borderSide: BorderSide(
+                                        color: Colors.green,
+                                      ),
+                                    ),
+                                  ),
+                                  dropdownColor: Colors.white,
+                                ),
+                            if (cursoSelecionado.isNotEmpty) ...[
+                              const SizedBox(height: 18),
+                              Text(
+                                'Semestre:  ${cursoSelecionado['semestre'] ?? '-'}',
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 16,
+                                ),
+                              ),
+                              const SizedBox(height: 8),
+                              Text(
+                                'Período:  ${cursoSelecionado['periodo']?.toString() ?? '-'}',
+                                style: const TextStyle(
+                                  color: Colors.white,
+                                  fontSize: 16,
+                                ),
+                              ),
+                            ],
+                          ],
+                        ),
                       ),
                     ),
-                  ),
-                  const SizedBox(height: 35),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: [
-                      OutlinedButton(
-                        onPressed: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) => const LoginPage(),
+                    const SizedBox(height: 35),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: [
+                        OutlinedButton(
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => const LoginPage(),
+                              ),
+                            );
+                          },
+                          style: OutlinedButton.styleFrom(
+                            foregroundColor: Colors.white,
+                            backgroundColor: Colors.black,
+                            side: const BorderSide(color: Colors.white),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(30),
                             ),
-                          );
-                        },
-                        style: OutlinedButton.styleFrom(
-                          foregroundColor: Colors.white,
-                          backgroundColor: Colors.black,
-                          side: const BorderSide(color: Colors.white),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(30),
+                          ),
+                          child: const Padding(
+                            padding: EdgeInsets.symmetric(
+                              horizontal: 24,
+                              vertical: 12,
+                            ),
+                            child: Text("Voltar"),
                           ),
                         ),
-                        child: const Padding(
-                          padding: EdgeInsets.symmetric(
-                            horizontal: 24,
-                            vertical: 12,
+                        OutlinedButton(
+                          onPressed: signUp,
+                          style: OutlinedButton.styleFrom(
+                            foregroundColor: Colors.white,
+                            backgroundColor: Colors.green,
+                            side: const BorderSide(color: Colors.green),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(30),
+                            ),
                           ),
-                          child: Text("Voltar"),
-                        ),
-                      ),
-                      OutlinedButton(
-                        onPressed: signUp,
-                        style: OutlinedButton.styleFrom(
-                          foregroundColor: Colors.white,
-                          backgroundColor: Colors.green,
-                          side: const BorderSide(color: Colors.green),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(30),
+                          child: const Padding(
+                            padding: EdgeInsets.symmetric(
+                              horizontal: 24,
+                              vertical: 12,
+                            ),
+                            child: Text("Sign up"),
                           ),
                         ),
-                        child: const Padding(
-                          padding: EdgeInsets.symmetric(
-                            horizontal: 24,
-                            vertical: 12,
-                          ),
-                          child: Text("Sign up"),
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
+                      ],
+                    ),
+                  ],
+                ),
               ),
             ),
           ),

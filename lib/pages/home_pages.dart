@@ -26,9 +26,11 @@ class _PaginaInicialState extends State<PaginaInicial> {
     final user = supabase.auth.currentUser;
 
     if (user == null) {
-      setState(() {
-        _nomeUsuario = 'Visitante';
-      });
+      if (mounted) {
+        setState(() {
+          _nomeUsuario = 'Visitante';
+        });
+      }
       return;
     }
 
@@ -38,31 +40,178 @@ class _PaginaInicialState extends State<PaginaInicial> {
 
       print('Dados do usuário recebidos: $data');
 
-      if (data['nome'] != null) {
-        setState(() {
-          _nomeUsuario = data['nome'];
-        });
-      } else {
+      if (mounted) {
+        if (data['nome'] != null) {
+          setState(() {
+            _nomeUsuario = data['nome'];
+          });
+        } else {
+          setState(() {
+            _nomeUsuario = 'Usuário';
+          });
+        }
+      }
+    } catch (e) {
+      print('Erro ao buscar nome do usuário: $e');
+      if (mounted) {
         setState(() {
           _nomeUsuario = 'Usuário';
         });
       }
-    } catch (e) {
-      print('Erro ao buscar nome do usuário: $e');
-      setState(() {
-        _nomeUsuario = 'Usuário';
-      });
     }
+  }
+
+  Future<List<Map<String, dynamic>>> _buscarAgendamentosHoje() async {
+    final supabase = Supabase.instance.client;
+    final user = supabase.auth.currentUser;
+    if (user == null) return [];
+    final userData = await supabase
+        .from('users')
+        .select('curso_id')
+        .eq('id', user.id)
+        .maybeSingle();
+    final cursoId = userData?['curso_id'];
+    if (cursoId == null) return [];
+    final hoje = DateTime.now();
+    final diaStr =
+        '${hoje.year.toString().padLeft(4, '0')}-${hoje.month.toString().padLeft(2, '0')}-${hoje.day.toString().padLeft(2, '0')}';
+    final response = await supabase
+        .from('agendamento')
+        .select('''
+          id,
+          dia,
+          aula_periodo,
+          hora_inicio,
+          hora_fim,
+          cursos(id, curso, semestre, periodo),
+          salas(id, numero_sala)
+        ''')
+        .eq('dia', diaStr)
+        .eq('curso_id', cursoId)
+        .order('hora_inicio');
+    return List<Map<String, dynamic>>.from(response);
+  }
+
+  Future<Map<String, dynamic>?> _buscarProximaAulaHoje() async {
+    final supabase = Supabase.instance.client;
+    final user = supabase.auth.currentUser;
+    if (user == null) return null;
+    final userData = await supabase
+        .from('users')
+        .select('curso_id')
+        .eq('id', user.id)
+        .maybeSingle();
+    final cursoId = userData?['curso_id'];
+    if (cursoId == null) return null;
+    final hoje = DateTime.now();
+    final diaStr =
+        '${hoje.year.toString().padLeft(4, '0')}-${hoje.month.toString().padLeft(2, '0')}-${hoje.day.toString().padLeft(2, '0')}';
+    final response = await supabase
+        .from('agendamento')
+        .select('''
+          id,
+          aula_periodo,
+          hora_inicio,
+          hora_fim,
+          cursos(id, curso, semestre, periodo),
+          salas(id, numero_sala)
+        ''')
+        .eq('dia', diaStr)
+        .eq('curso_id', cursoId)
+        .order('hora_inicio', ascending: true)
+        .limit(1);
+    if (response.isNotEmpty) {
+      return response[0];
+    }
+    return null;
+  }
+
+  Widget buildAgendaPage() {
+    return FutureBuilder<List<Map<String, dynamic>>>(
+      future: _buscarAgendamentosHoje(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(child: CircularProgressIndicator());
+        }
+        final agendamentos = snapshot.data ?? [];
+        if (agendamentos.isEmpty) {
+          return const Center(
+            child: Text(
+              'Nenhuma aula cadastrada para hoje.',
+              style: TextStyle(fontSize: 18, color: Colors.grey),
+            ),
+          );
+        }
+        return ListView.builder(
+          itemCount: agendamentos.length > 2 ? 2 : agendamentos.length,
+          padding: const EdgeInsets.symmetric(vertical: 32, horizontal: 16),
+          itemBuilder: (context, idx) {
+            final ag = agendamentos[idx];
+            final sala = ag['salas']?['numero_sala']?.toString() ?? '-';
+            final curso = ag['cursos']?['curso'] ?? '-';
+            final periodo = ag['cursos']?['periodo'] ?? '-';
+            final semestre = ag['cursos']?['semestre'] ?? '-';
+            return Card(
+              margin: const EdgeInsets.only(bottom: 24),
+              elevation: 4,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(18),
+              ),
+              child: Padding(
+                padding: const EdgeInsets.all(20),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      ag['aula_periodo'] ?? '-',
+                      style: const TextStyle(
+                        fontSize: 20,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Row(
+                      children: [
+                        const Icon(Icons.access_time, color: Colors.blue),
+                        const SizedBox(width: 8),
+                        Text('Início: ${ag['hora_inicio'] ?? '-'}'),
+                        const SizedBox(width: 16),
+                        Text('Fim: ${ag['hora_fim'] ?? '-'}'),
+                      ],
+                    ),
+                    const SizedBox(height: 8),
+                    Row(
+                      children: [
+                        const Icon(Icons.meeting_room, color: Colors.green),
+                        const SizedBox(width: 8),
+                        Text('Sala: $sala'),
+                      ],
+                    ),
+                    const SizedBox(height: 8),
+                    Row(
+                      children: [
+                        const Icon(Icons.school, color: Colors.deepPurple),
+                        const SizedBox(width: 8),
+                        Text('Curso: $curso'),
+                        const SizedBox(width: 16),
+                        Text('Período: $periodo'),
+                        const SizedBox(width: 16),
+                        Text('Semestre: $semestre'),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            );
+          },
+        );
+      },
+    );
   }
 
   @override
   Widget build(BuildContext context) {
-    // Construir as páginas dinamicamente para garantir atualização do nome
-    final pages = [
-      buildHomePage(),
-      buildAgendaPage(),
-      const PerfilPage(), // Adicionado PerfilPage como terceira página
-    ];
+    final pages = [buildHomePage(), buildAgendaPage(), const PerfilPage()];
 
     return Scaffold(
       backgroundColor: const Color(0xFFF5F7FA),
@@ -76,16 +225,9 @@ class _PaginaInicialState extends State<PaginaInicial> {
       bottomNavigationBar: BottomNavigationBar(
         currentIndex: _indiceAtual,
         onTap: (index) {
-          if (index == 1) {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (_) => const BuscarSalaPage()),
-            );
-          } else {
-            setState(() {
-              _indiceAtual = index;
-            });
-          }
+          setState(() {
+            _indiceAtual = index;
+          });
         },
         selectedItemColor: Colors.blue,
         unselectedItemColor: Colors.grey,
@@ -252,11 +394,6 @@ class _PaginaInicialState extends State<PaginaInicial> {
     );
   }
 
-  Widget buildAgendaPage() {
-    // Apenas retorna um container vazio, pois a navegação será feita pelo onTap do BottomNavigationBar
-    return const SizedBox.shrink();
-  }
-
   Widget _buildIconButton(IconData icon, String label) {
     return Column(
       children: [
@@ -272,48 +409,159 @@ class _PaginaInicialState extends State<PaginaInicial> {
   }
 
   Widget _buildProximaAulaCard() {
-    return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20),
-      child: Container(
-        padding: const EdgeInsets.all(20),
-        decoration: BoxDecoration(
-          color: const Color.fromARGB(255, 202, 206, 5),
-          borderRadius: BorderRadius.circular(20),
-        ),
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          children: const [
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text('PRÓXIMA AULA', style: TextStyle(color: Colors.white70)),
-                SizedBox(height: 8),
-                Text(
-                  'Algoritmos e Lógica',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 20,
-                    fontWeight: FontWeight.bold,
+    return FutureBuilder<Map<String, dynamic>?>(
+      future: _buscarProximaAulaHoje(),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20),
+            child: Container(
+              height: 110,
+              alignment: Alignment.center,
+              child: const CircularProgressIndicator(),
+            ),
+          );
+        }
+        final ag = snapshot.data;
+        if (ag == null) {
+          return Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20),
+            child: Container(
+              padding: const EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                color: const Color.fromARGB(255, 202, 206, 5),
+                borderRadius: BorderRadius.circular(20),
+              ),
+              child: const Row(
+                children: [
+                  Icon(Icons.info_outline, color: Colors.white70),
+                  SizedBox(width: 12),
+                  Text(
+                    'Nenhuma aula agendada para hoje.',
+                    style: TextStyle(color: Colors.white70, fontSize: 18),
                   ),
-                ),
-                SizedBox(height: 5),
-                Text(
-                  '11:00 • Sala 201',
-                  style: TextStyle(color: Colors.white70),
+                ],
+              ),
+            ),
+          );
+        }
+        final disciplina = ag['aula_periodo'] ?? '-';
+        final inicio = ag['hora_inicio'] ?? '-';
+        final fim = ag['hora_fim'] ?? '-';
+        final sala = ag['salas']?['numero_sala']?.toString() ?? '-';
+        final curso = ag['cursos']?['curso'] ?? '-';
+        return Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 20),
+          child: Container(
+            padding: const EdgeInsets.all(20),
+            decoration: BoxDecoration(
+              color: const Color.fromARGB(255, 202, 206, 5),
+              borderRadius: BorderRadius.circular(20),
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.yellow.withOpacity(0.15),
+                  blurRadius: 12,
+                  offset: const Offset(0, 6),
                 ),
               ],
             ),
-            Text(
-              '20 min',
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
-              ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      const Text('PRÓXIMA AULA', style: TextStyle(color: Colors.white70)),
+                      const SizedBox(height: 8),
+                      Text(
+                        disciplina,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 22,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      const SizedBox(height: 8),
+                      Row(
+                        children: [
+                          const Icon(Icons.access_time, color: Colors.white, size: 20),
+                          const SizedBox(width: 6),
+                          Text(
+                            'Início: ',
+                            style: TextStyle(color: Colors.white70, fontWeight: FontWeight.w500),
+                          ),
+                          Text(
+                            inicio,
+                            style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16),
+                          ),
+                          const SizedBox(width: 16),
+                          Text(
+                            'Fim: ',
+                            style: TextStyle(color: Colors.white70, fontWeight: FontWeight.w500),
+                          ),
+                          Text(
+                            fim,
+                            style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16),
+                          ),
+                        ],
+                      ),
+                      const SizedBox(height: 8),
+                      Row(
+                        children: [
+                          const Icon(Icons.school, color: Colors.white, size: 20),
+                          const SizedBox(width: 6),
+                          Text(
+                            curso,
+                            style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 16),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(16),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.yellow.withOpacity(0.18),
+                        blurRadius: 8,
+                        offset: const Offset(0, 2),
+                      ),
+                    ],
+                  ),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Icon(Icons.meeting_room, color: Color(0xFFcace05), size: 28),
+                      const SizedBox(height: 4),
+                      Text(
+                        'Sala',
+                        style: TextStyle(
+                          color: Colors.grey[700],
+                          fontWeight: FontWeight.w600,
+                          fontSize: 13,
+                        ),
+                      ),
+                      Text(
+                        sala,
+                        style: const TextStyle(
+                          color: Color(0xFFcace05),
+                          fontWeight: FontWeight.bold,
+                          fontSize: 22,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
             ),
-          ],
-        ),
-      ),
+          ),
+        );
+      },
     );
   }
 

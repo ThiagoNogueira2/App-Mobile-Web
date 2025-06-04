@@ -28,7 +28,6 @@ class _PerfilPageState extends State<PerfilPage> {
   Future<void> carregarDadosPerfil() async {
     final supabase = Supabase.instance.client;
     final user = supabase.auth.currentUser;
-    print('ID do usuário autenticado: \\${user?.id}');
     if (user == null) {
       setState(() {
         carregando = false;
@@ -37,19 +36,18 @@ class _PerfilPageState extends State<PerfilPage> {
       return;
     }
     try {
+      // Busca o usuário e faz join com cursos
       final data =
           await supabase
               .from('users')
-              .select('*')
+              .select('*, cursos:curso_id(id, curso, semestre, periodo)')
               .eq('id', user.id)
               .maybeSingle();
-      print('Resultado da consulta users: \\${data}');
       setState(() {
         userData = data;
         carregando = false;
       });
     } catch (e) {
-      print('Erro ao buscar perfil: \\${e}');
       setState(() {
         carregando = false;
         userData = null;
@@ -60,9 +58,10 @@ class _PerfilPageState extends State<PerfilPage> {
   void preencherControllers() {
     _nomeController.text = userData?['nome'] ?? '';
     _emailController.text = userData?['email'] ?? '';
-    _cursoController.text = userData?['curso'] ?? '';
-    _semestreController.text = userData?['semestre']?.toString() ?? '';
-    _periodoController.text = userData?['periodo'] ?? '';
+    _cursoController.text = userData?['cursos']?['curso'] ?? '';
+    _semestreController.text =
+        userData?['cursos']?['semestre']?.toString() ?? '';
+    _periodoController.text = userData?['cursos']?['periodo']?.toString() ?? '';
   }
 
   Future<void> atualizarPerfil() async {
@@ -78,9 +77,6 @@ class _PerfilPageState extends State<PerfilPage> {
           .update({
             'nome': _nomeController.text.trim(),
             'email': _emailController.text.trim(),
-            'curso': _cursoController.text.trim(),
-            'semestre': _semestreController.text.trim(),
-            'periodo': _periodoController.text.trim(),
           })
           .eq('id', user.id);
       await carregarDadosPerfil();
@@ -259,17 +255,18 @@ class _PerfilPageState extends State<PerfilPage> {
                                       _buildInfoRow(
                                         Icons.school,
                                         'Curso',
-                                        userData?['curso'],
+                                        userData?['cursos']?['curso'],
                                       ),
                                       _buildInfoRow(
                                         Icons.calendar_today,
                                         'Semestre',
-                                        userData?['semestre']?.toString(),
+                                        userData?['cursos']?['semestre']
+                                            ?.toString(),
                                       ),
                                       _buildInfoRow(
                                         Icons.access_time,
                                         'Período',
-                                        userData?['periodo'],
+                                        userData?['cursos']?['periodo'],
                                       ),
                                     ],
                                   ),

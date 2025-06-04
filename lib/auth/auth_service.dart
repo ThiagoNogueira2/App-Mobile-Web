@@ -18,8 +18,9 @@ class AuthService {
     String password, {
     required String nome,
     required String curso,
-    required int semestre,
-    required String periodo,
+    required int cursoId,
+    int? semestre,
+    String? periodo,
   }) async {
     // Cadastra o usuário no Supabase Auth com user_metadata
     final response = await _supabase.auth.signUp(
@@ -27,9 +28,10 @@ class AuthService {
       password: password,
       data: {
         'nome': nome,
-        'curso': curso,
-        'semestre': semestre,
-        'periodo': periodo,
+        'curso': curso, // nome do curso para o metadata
+        'curso_id': cursoId, // id do curso para referência
+        if (semestre != null) 'semestre': semestre,
+        if (periodo != null) 'periodo': periodo,
       },
     );
 
@@ -41,7 +43,7 @@ class AuthService {
         user.id,
         email,
         nome: nome,
-        curso: curso,
+        cursoId: cursoId,
         semestre: semestre,
         periodo: periodo,
       );
@@ -54,9 +56,9 @@ class AuthService {
     String userId,
     String email, {
     required String nome,
-    required String curso,
-    required int semestre,
-    required String periodo,
+    required int cursoId,
+    int? semestre,
+    String? periodo,
   }) async {
     final existing =
         await _supabase
@@ -70,9 +72,9 @@ class AuthService {
         'id': userId,
         'email': email,
         'nome': nome,
-        'curso': curso,
-        'semestre': semestre,
-        'periodo': periodo,
+        'curso_id': cursoId,
+        if (semestre != null) 'semestre': semestre,
+        if (periodo != null) 'periodo': periodo,
         'created_at': DateTime.now().toIso8601String(),
       });
     }
