@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:projectflutter/pages/profile_page.dart';
 import 'package:projectflutter/pages/perfil_page.dart'; // Importação correta
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'buscarsala_page.dart';
 
 class PaginaInicial extends StatefulWidget {
   const PaginaInicial({super.key});
@@ -65,11 +63,12 @@ class _PaginaInicialState extends State<PaginaInicial> {
     final supabase = Supabase.instance.client;
     final user = supabase.auth.currentUser;
     if (user == null) return [];
-    final userData = await supabase
-        .from('users')
-        .select('curso_id')
-        .eq('id', user.id)
-        .maybeSingle();
+    final userData =
+        await supabase
+            .from('users')
+            .select('curso_id')
+            .eq('id', user.id)
+            .maybeSingle();
     final cursoId = userData?['curso_id'];
     if (cursoId == null) return [];
     final hoje = DateTime.now();
@@ -96,11 +95,12 @@ class _PaginaInicialState extends State<PaginaInicial> {
     final supabase = Supabase.instance.client;
     final user = supabase.auth.currentUser;
     if (user == null) return null;
-    final userData = await supabase
-        .from('users')
-        .select('curso_id')
-        .eq('id', user.id)
-        .maybeSingle();
+    final userData =
+        await supabase
+            .from('users')
+            .select('curso_id')
+            .eq('id', user.id)
+            .maybeSingle();
     final cursoId = userData?['curso_id'];
     if (cursoId == null) return null;
     final hoje = DateTime.now();
@@ -131,81 +131,270 @@ class _PaginaInicialState extends State<PaginaInicial> {
       future: _buscarAgendamentosHoje(),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Center(child: CircularProgressIndicator());
-        }
-        final agendamentos = snapshot.data ?? [];
-        if (agendamentos.isEmpty) {
           return const Center(
-            child: Text(
-              'Nenhuma aula cadastrada para hoje.',
-              style: TextStyle(fontSize: 18, color: Colors.grey),
+            child: CircularProgressIndicator(
+              valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF1976D2)),
             ),
           );
         }
-        return ListView.builder(
-          itemCount: agendamentos.length > 2 ? 2 : agendamentos.length,
-          padding: const EdgeInsets.symmetric(vertical: 32, horizontal: 16),
-          itemBuilder: (context, idx) {
-            final ag = agendamentos[idx];
-            final sala = ag['salas']?['numero_sala']?.toString() ?? '-';
-            final curso = ag['cursos']?['curso'] ?? '-';
-            final periodo = ag['cursos']?['periodo'] ?? '-';
-            final semestre = ag['cursos']?['semestre'] ?? '-';
-            return Card(
-              margin: const EdgeInsets.only(bottom: 24),
-              elevation: 4,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(18),
+        final agendamentos = snapshot.data ?? [];
+        return Column(
+          children: [
+            // Imagem decorativa no topo da agenda
+            Container(
+              width: double.infinity,
+              height: 280,
+              margin: const EdgeInsets.only(
+                bottom: 32,
+                left: 24,
+                right: 24,
+                top: 8,
               ),
-              child: Padding(
-                padding: const EdgeInsets.all(20),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      ag['aula_periodo'] ?? '-',
-                      style: const TextStyle(
-                        fontSize: 20,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    const SizedBox(height: 8),
-                    Row(
-                      children: [
-                        const Icon(Icons.access_time, color: Colors.blue),
-                        const SizedBox(width: 8),
-                        Text('Início: ${ag['hora_inicio'] ?? '-'}'),
-                        const SizedBox(width: 16),
-                        Text('Fim: ${ag['hora_fim'] ?? '-'}'),
-                      ],
-                    ),
-                    const SizedBox(height: 8),
-                    Row(
-                      children: [
-                        const Icon(Icons.meeting_room, color: Colors.green),
-                        const SizedBox(width: 8),
-                        Text('Sala: $sala'),
-                      ],
-                    ),
-                    const SizedBox(height: 8),
-                    Row(
-                      children: [
-                        const Icon(Icons.school, color: Colors.deepPurple),
-                        const SizedBox(width: 8),
-                        Text('Curso: $curso'),
-                        const SizedBox(width: 16),
-                        Text('Período: $periodo'),
-                        const SizedBox(width: 16),
-                        Text('Semestre: $semestre'),
-                      ],
-                    ),
-                  ],
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(24),
+                image: const DecorationImage(
+                  image: AssetImage('assets/images/perfil.jpeg'),
+                  fit: BoxFit.cover,
                 ),
               ),
-            );
-          },
+            ),
+            Expanded(
+              child:
+                  agendamentos.isEmpty
+                      ? Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(
+                              Icons.event_available,
+                              size: 80,
+                              color: Colors.blue[200],
+                            ),
+                            const SizedBox(height: 16),
+                            Text(
+                              'Nenhuma aula para hoje',
+                              style: TextStyle(
+                                fontSize: 20,
+                                fontWeight: FontWeight.w600,
+                                color: Colors.grey[600],
+                              ),
+                            ),
+                            Text(
+                              'Aproveite seu tempo livre!',
+                              style: TextStyle(
+                                fontSize: 16,
+                                color: Colors.grey[500],
+                              ),
+                            ),
+                          ],
+                        ),
+                      )
+                      : ListView.builder(
+                        itemCount:
+                            agendamentos.length > 2 ? 2 : agendamentos.length,
+                        padding: const EdgeInsets.all(24),
+                        itemBuilder: (context, idx) {
+                          final ag = agendamentos[idx];
+                          final sala =
+                              ag['salas']?['numero_sala']?.toString() ?? '-';
+                          final curso = ag['cursos']?['curso'] ?? '-';
+                          final periodo = ag['cursos']?['periodo'] ?? '-';
+                          final semestre = ag['cursos']?['semestre'] ?? '-';
+                          return Container(
+                            margin: const EdgeInsets.only(bottom: 16),
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(20),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: const Color(
+                                    0xFF3B82F6,
+                                  ).withOpacity(0.08),
+                                  blurRadius: 20,
+                                  offset: const Offset(0, 4),
+                                ),
+                              ],
+                            ),
+                            child: Padding(
+                              padding: const EdgeInsets.all(24),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  // Header do card
+                                  Row(
+                                    children: [
+                                      Container(
+                                        padding: const EdgeInsets.all(12),
+                                        decoration: BoxDecoration(
+                                          gradient: const LinearGradient(
+                                            colors: [
+                                              Color(0xFF3B82F6),
+                                              Color(0xFF1E40AF),
+                                            ],
+                                            begin: Alignment.topLeft,
+                                            end: Alignment.bottomRight,
+                                          ),
+                                          borderRadius: BorderRadius.circular(
+                                            12,
+                                          ),
+                                        ),
+                                        child: const Icon(
+                                          Icons.school,
+                                          color: Colors.white,
+                                          size: 20,
+                                        ),
+                                      ),
+                                      const SizedBox(width: 16),
+                                      Expanded(
+                                        child: Text(
+                                          ag['aula_periodo'] ?? '-',
+                                          style: const TextStyle(
+                                            fontSize: 18,
+                                            fontWeight: FontWeight.w700,
+                                            color: Color(0xFF1E293B),
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  const SizedBox(height: 20),
+                                  // Informações em grid
+                                  Row(
+                                    children: [
+                                      Expanded(
+                                        child: _buildInfoItem(
+                                          Icons.access_time_rounded,
+                                          'Início',
+                                          ag['hora_inicio'] ?? '-',
+                                          const Color(0xFF10B981),
+                                        ),
+                                      ),
+                                      const SizedBox(width: 16),
+                                      Expanded(
+                                        child: _buildInfoItem(
+                                          Icons.schedule,
+                                          'Fim',
+                                          ag['hora_fim'] ?? '-',
+                                          const Color(0xFFF59E0B),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  const SizedBox(height: 16),
+                                  Row(
+                                    children: [
+                                      Expanded(
+                                        child: _buildInfoItem(
+                                          Icons.meeting_room_rounded,
+                                          'Sala',
+                                          sala,
+                                          const Color(0xFF8B5CF6),
+                                        ),
+                                      ),
+                                      const SizedBox(width: 16),
+                                      Expanded(
+                                        child: _buildInfoItem(
+                                          Icons.book_rounded,
+                                          'Curso',
+                                          curso,
+                                          const Color(0xFF3B82F6),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  const SizedBox(height: 16),
+                                  // Informações adicionais
+                                  Container(
+                                    padding: const EdgeInsets.all(16),
+                                    decoration: BoxDecoration(
+                                      color: const Color(0xFFF8FAFC),
+                                      borderRadius: BorderRadius.circular(12),
+                                    ),
+                                    child: Row(
+                                      children: [
+                                        Expanded(
+                                          child: Text(
+                                            'Período: $periodo',
+                                            style: const TextStyle(
+                                              fontSize: 14,
+                                              fontWeight: FontWeight.w500,
+                                              color: Color(0xFF64748B),
+                                            ),
+                                          ),
+                                        ),
+                                        Container(
+                                          width: 1,
+                                          height: 16,
+                                          color: const Color(0xFFE2E8F0),
+                                        ),
+                                        const SizedBox(width: 16),
+                                        Expanded(
+                                          child: Text(
+                                            'Semestre: $semestre',
+                                            style: const TextStyle(
+                                              fontSize: 14,
+                                              fontWeight: FontWeight.w500,
+                                              color: Color(0xFF64748B),
+                                            ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                          );
+                        },
+                      ),
+            ),
+          ],
         );
       },
+    );
+  }
+
+  // Adiciona o _buildInfoItem para uso local
+  Widget _buildInfoItem(
+    IconData icon,
+    String label,
+    String value,
+    Color color,
+  ) {
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: color.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(icon, color: color, size: 16),
+              const SizedBox(width: 6),
+              Text(
+                label,
+                style: TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
+                  color: color,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 4),
+          Text(
+            value,
+            style: const TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.w600,
+              color: Color(0xFF1E293B),
+            ),
+          ),
+        ],
+      ),
     );
   }
 
@@ -214,28 +403,54 @@ class _PaginaInicialState extends State<PaginaInicial> {
     final pages = [buildHomePage(), buildAgendaPage(), const PerfilPage()];
 
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F7FA),
+      backgroundColor: const Color(0xFFF8FAFC),
       body:
           _nomeUsuario == 'Carregando...'
-              ? const Center(child: CircularProgressIndicator())
-              : Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20),
-                child: pages[_indiceAtual],
-              ),
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: _indiceAtual,
-        onTap: (index) {
-          setState(() {
-            _indiceAtual = index;
-          });
-        },
-        selectedItemColor: Colors.blue,
-        unselectedItemColor: Colors.grey,
-        items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Início'),
-          BottomNavigationBarItem(icon: Icon(Icons.schedule), label: 'Agenda'),
-          BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Perfil'),
-        ],
+              ? const Center(
+                child: CircularProgressIndicator(
+                  valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF1976D2)),
+                ),
+              )
+              : pages[_indiceAtual],
+      bottomNavigationBar: Container(
+        decoration: BoxDecoration(
+          color: Colors.white,
+          boxShadow: [
+            BoxShadow(
+              color: Colors.grey.withOpacity(0.1),
+              blurRadius: 20,
+              offset: const Offset(0, -5),
+            ),
+          ],
+        ),
+        child: BottomNavigationBar(
+          currentIndex: _indiceAtual,
+          onTap: (index) {
+            setState(() {
+              _indiceAtual = index;
+            });
+          },
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+          selectedItemColor: const Color(0xFF1976D2),
+          unselectedItemColor: Colors.grey[400],
+          selectedLabelStyle: const TextStyle(fontWeight: FontWeight.w600),
+          type: BottomNavigationBarType.fixed,
+          items: const [
+            BottomNavigationBarItem(
+              icon: Icon(Icons.home_rounded),
+              label: 'Início',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.calendar_today_rounded),
+              label: 'Agenda',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.person_rounded),
+              label: 'Perfil',
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -245,121 +460,165 @@ class _PaginaInicialState extends State<PaginaInicial> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Banner
-          Stack(
-            children: [
-              Container(
-                height: 200,
-                decoration: const BoxDecoration(
-                  image: DecorationImage(
-                    image: AssetImage('assets/images/imgcarrosel.jpg'),
-                    fit: BoxFit.cover,
-                  ),
-                ),
+          // Header moderno com imagem de fundo cobrindo 100%
+          Container(
+            height: 280,
+            decoration: BoxDecoration(
+              borderRadius: const BorderRadius.only(
+                bottomLeft: Radius.circular(20),
+                bottomRight: Radius.circular(20),
               ),
-              const Positioned(
-                top: 30,
-                right: 20,
-                child: Icon(
-                  Icons.notifications_none,
-                  color: Colors.white,
-                  size: 30,
-                ),
+              image: const DecorationImage(
+                image: AssetImage('assets/images/welcome.jpeg'),
+                fit: BoxFit.cover,
               ),
-              const Positioned(
-                bottom: 20,
-                left: 20,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text(
-                      '',
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    SizedBox(height: 5),
-                    Text(
-                      '',
-                      style: TextStyle(color: Colors.white70, fontSize: 16),
-                    ),
-                    SizedBox(height: 10),
-                    Text(
-                      '',
-                      style: TextStyle(
-                        color: Colors.amber,
-                        fontSize: 14,
-                        decoration: TextDecoration.underline,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ],
-          ),
-
-          const SizedBox(height: 20),
-
-          // Boas-vindas com nome dinâmico
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20),
-            child: Row(
+            ),
+            child: Stack(
               children: [
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text(
-                        'Bem-vindo(a),',
-                        style: TextStyle(fontSize: 18),
-                      ),
-                      const SizedBox(height: 5),
-                      Text(
-                        _nomeUsuario,
-                        style: const TextStyle(
-                          fontSize: 24,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                      const SizedBox(height: 8),
-                      const Chip(
-                        label: Text('Semestre Outono 2025'),
-                        backgroundColor: Colors.grey,
-                        labelStyle: TextStyle(color: Colors.white),
-                      ),
-                    ],
+                // Gradiente sobre a imagem
+                Container(
+                  decoration: const BoxDecoration(
+                    borderRadius: BorderRadius.only(
+                      bottomLeft: Radius.circular(32),
+                      bottomRight: Radius.circular(32),
+                    ),
+                    gradient: LinearGradient(
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                      colors: [
+                        Color(0xCC1976D2), // semi-transparente
+                        Color(0xCC1565C0),
+                        Color(0xCC0D47A1),
+                      ],
+                    ),
                   ),
                 ),
-                const CircleAvatar(radius: 25),
+                SafeArea(
+                  child: Padding(
+                    padding: const EdgeInsets.all(24),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // Header com notificação
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            const Text(
+                              'Olá! 👋',
+                              style: TextStyle(
+                                color: Colors.white70,
+                                fontSize: 16,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                            Container(
+                              padding: const EdgeInsets.all(8),
+                              decoration: BoxDecoration(
+                                color: Colors.white.withOpacity(0.2),
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: const Icon(
+                                Icons.notifications_rounded,
+                                color: Colors.white,
+                                size: 24,
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 20),
+                        // Nome do usuário
+                        Text(
+                          _nomeUsuario,
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 32,
+                            fontWeight: FontWeight.w800,
+                            letterSpacing: -0.5,
+                          ),
+                        ),
+                        const SizedBox(height: 12),
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 8,
+                          ),
+                          decoration: BoxDecoration(
+                            color: Colors.white.withOpacity(0.2),
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          child: const Text(
+                            'Semestre Outono 2025',
+                            style: TextStyle(
+                              color: Colors.white,
+                              fontSize: 14,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ),
+                        const Spacer(),
+                        // Avatar
+                        Row(
+                          children: [
+                            Container(
+                              width: 56,
+                              height: 56,
+                              decoration: BoxDecoration(
+                                color: Colors.white.withOpacity(0.2),
+                                borderRadius: BorderRadius.circular(16),
+                              ),
+                              child: const Icon(
+                                Icons.person_rounded,
+                                color: Colors.white,
+                                size: 32,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
               ],
             ),
           ),
 
-          const SizedBox(height: 20),
+          const SizedBox(height: 32),
 
           // Ícones de Acesso Rápido
           Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20),
+            padding: const EdgeInsets.symmetric(horizontal: 24),
             child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
-                _buildIconButton(Icons.calendar_today, 'Agenda'),
-                _buildIconButton(Icons.book, 'Disciplinas'),
-                _buildIconButton(Icons.grade, 'Notas'),
+                _buildQuickAccessButton(
+                  Icons.calendar_today_rounded,
+                  'Agenda',
+                  const Color(0xFF42A5F5),
+                ),
+                _buildQuickAccessButton(
+                  Icons.book_rounded,
+                  'Disciplinas',
+                  const Color(0xFF66BB6A),
+                ),
+                _buildQuickAccessButton(
+                  Icons.grade_rounded,
+                  'Notas',
+                  const Color(0xFFFF7043),
+                ),
               ],
             ),
           ),
 
-          const SizedBox(height: 30),
+          const SizedBox(height: 32),
 
           // Cartão de próxima aula
           _buildProximaAulaCard(),
 
-          const SizedBox(height: 30),
+          const SizedBox(height: 32),
 
-          _buildSectionHeader('Disciplinas da Semana', Icons.school),
+          // Seções
+          _buildSectionHeader('Disciplinas da Semana', Icons.school_rounded),
+          const SizedBox(height: 16),
           _buildDisciplinaCard(
             'Psicologia Social',
             'Segunda - 08:00',
@@ -376,9 +635,10 @@ class _PaginaInicialState extends State<PaginaInicial> {
             'Sala 202',
           ),
 
-          const SizedBox(height: 30),
+          const SizedBox(height: 32),
 
-          _buildSectionHeader('Avisos Recentes', Icons.announcement),
+          _buildSectionHeader('Avisos Recentes', Icons.campaign_rounded),
+          const SizedBox(height: 16),
           _buildAvisoCard(
             'Palestra sobre Carreiras na Tecnologia',
             'Quinta-feira às 18h no auditório.',
@@ -388,23 +648,57 @@ class _PaginaInicialState extends State<PaginaInicial> {
             'Entre os dias 10 e 12 o sistema ficará fora do ar para manutenção.',
           ),
 
-          const SizedBox(height: 30),
+          const SizedBox(height: 32),
         ],
       ),
     );
   }
 
-  Widget _buildIconButton(IconData icon, String label) {
-    return Column(
-      children: [
-        CircleAvatar(
-          radius: 25,
-          backgroundColor: Colors.white,
-          child: Icon(icon, size: 30, color: Colors.blue),
+  Widget _buildQuickAccessButton(IconData icon, String label, Color color) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(
+            color: color.withOpacity(0.1),
+            blurRadius: 20,
+            offset: const Offset(0, 8),
+          ),
+        ],
+      ),
+      child: Material(
+        color: Colors.transparent,
+        borderRadius: BorderRadius.circular(20),
+        child: InkWell(
+          borderRadius: BorderRadius.circular(20),
+          onTap: () {},
+          child: Padding(
+            padding: const EdgeInsets.all(20),
+            child: Column(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: color.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  child: Icon(icon, size: 28, color: color),
+                ),
+                const SizedBox(height: 12),
+                Text(
+                  label,
+                  style: const TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                    color: Color(0xFF2C3E50),
+                  ),
+                ),
+              ],
+            ),
+          ),
         ),
-        const SizedBox(height: 8),
-        Text(label),
-      ],
+      ),
     );
   }
 
@@ -414,31 +708,80 @@ class _PaginaInicialState extends State<PaginaInicial> {
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20),
+            padding: const EdgeInsets.symmetric(horizontal: 24),
             child: Container(
-              height: 110,
-              alignment: Alignment.center,
-              child: const CircularProgressIndicator(),
+              height: 180,
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(24),
+              ),
+              child: const Center(
+                child: CircularProgressIndicator(
+                  valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF1976D2)),
+                ),
+              ),
             ),
           );
         }
         final ag = snapshot.data;
         if (ag == null) {
           return Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 20),
+            padding: const EdgeInsets.symmetric(horizontal: 24),
             child: Container(
-              padding: const EdgeInsets.all(20),
+              padding: const EdgeInsets.all(24),
               decoration: BoxDecoration(
-                color: const Color.fromARGB(255, 202, 206, 5),
-                borderRadius: BorderRadius.circular(20),
+                gradient: LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [Colors.blue[100]!, Colors.blue[50]!],
+                ),
+                borderRadius: BorderRadius.circular(24),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.blue.withOpacity(0.1),
+                    blurRadius: 20,
+                    offset: const Offset(0, 8),
+                  ),
+                ],
               ),
-              child: const Row(
+              child: Row(
                 children: [
-                  Icon(Icons.info_outline, color: Colors.white70),
-                  SizedBox(width: 12),
-                  Text(
-                    'Nenhuma aula agendada para hoje.',
-                    style: TextStyle(color: Colors.white70, fontSize: 18),
+                  Container(
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(16),
+                    ),
+                    child: Icon(
+                      Icons.event_available_rounded,
+                      color: Colors.blue[600],
+                      size: 32,
+                    ),
+                  ),
+                  const SizedBox(width: 20),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Sem aulas hoje',
+                          style: TextStyle(
+                            color: Colors.blue[800],
+                            fontSize: 20,
+                            fontWeight: FontWeight.w700,
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          'Aproveite para descansar!',
+                          style: TextStyle(
+                            color: Colors.blue[600],
+                            fontSize: 16,
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ],
               ),
@@ -451,110 +794,98 @@ class _PaginaInicialState extends State<PaginaInicial> {
         final sala = ag['salas']?['numero_sala']?.toString() ?? '-';
         final curso = ag['cursos']?['curso'] ?? '-';
         return Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20),
+          padding: const EdgeInsets.symmetric(horizontal: 24),
           child: Container(
-            padding: const EdgeInsets.all(20),
             decoration: BoxDecoration(
-              color: const Color.fromARGB(255, 202, 206, 5),
-              borderRadius: BorderRadius.circular(20),
+              color: const Color(0xFF1976D2),
+              borderRadius: BorderRadius.circular(24),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.yellow.withOpacity(0.15),
-                  blurRadius: 12,
-                  offset: const Offset(0, 6),
+                  color: Colors.blue.withOpacity(0.08),
+                  blurRadius: 20,
+                  offset: const Offset(0, 8),
                 ),
               ],
             ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            padding: const EdgeInsets.all(24),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text('PRÓXIMA AULA', style: TextStyle(color: Colors.white70)),
-                      const SizedBox(height: 8),
-                      Text(
-                        disciplina,
-                        style: const TextStyle(
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 6,
+                      ),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withOpacity(0.2),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: const Text(
+                        'PRÓXIMA AULA',
+                        style: TextStyle(
                           color: Colors.white,
-                          fontSize: 22,
-                          fontWeight: FontWeight.bold,
+                          fontSize: 12,
+                          fontWeight: FontWeight.w700,
+                          letterSpacing: 1,
                         ),
                       ),
-                      const SizedBox(height: 8),
-                      Row(
+                    ),
+                    Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                      child: Column(
                         children: [
-                          const Icon(Icons.access_time, color: Colors.white, size: 20),
-                          const SizedBox(width: 6),
-                          Text(
-                            'Início: ',
-                            style: TextStyle(color: Colors.white70, fontWeight: FontWeight.w500),
+                          const Icon(
+                            Icons.meeting_room_rounded,
+                            color: Color(0xFF1976D2),
+                            size: 20,
                           ),
+                          const SizedBox(height: 4),
                           Text(
-                            inicio,
-                            style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16),
-                          ),
-                          const SizedBox(width: 16),
-                          Text(
-                            'Fim: ',
-                            style: TextStyle(color: Colors.white70, fontWeight: FontWeight.w500),
-                          ),
-                          Text(
-                            fim,
-                            style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16),
+                            sala,
+                            style: const TextStyle(
+                              color: Color(0xFF1976D2),
+                              fontWeight: FontWeight.w800,
+                              fontSize: 16,
+                            ),
                           ),
                         ],
                       ),
-                      const SizedBox(height: 8),
-                      Row(
-                        children: [
-                          const Icon(Icons.school, color: Colors.white, size: 20),
-                          const SizedBox(width: 6),
-                          Text(
-                            curso,
-                            style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 16),
-                          ),
-                        ],
-                      ),
-                    ],
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 16),
+                Text(
+                  disciplina,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 24,
+                    fontWeight: FontWeight.w800,
+                    letterSpacing: -0.5,
                   ),
                 ),
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 16),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(16),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.yellow.withOpacity(0.18),
-                        blurRadius: 8,
-                        offset: const Offset(0, 2),
-                      ),
-                    ],
-                  ),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const Icon(Icons.meeting_room, color: Color(0xFFcace05), size: 28),
-                      const SizedBox(height: 4),
-                      Text(
-                        'Sala',
-                        style: TextStyle(
-                          color: Colors.grey[700],
-                          fontWeight: FontWeight.w600,
-                          fontSize: 13,
-                        ),
-                      ),
-                      Text(
-                        sala,
-                        style: const TextStyle(
-                          color: Color(0xFFcace05),
-                          fontWeight: FontWeight.bold,
-                          fontSize: 22,
-                        ),
-                      ),
-                    ],
+                const SizedBox(height: 16),
+                Row(
+                  children: [
+                    _buildTimeChip(Icons.play_arrow_rounded, inicio),
+                    const SizedBox(width: 12),
+                    _buildTimeChip(Icons.stop_rounded, fim),
+                  ],
+                ),
+                const SizedBox(height: 12),
+                Text(
+                  curso,
+                  style: const TextStyle(
+                    color: Colors.white70,
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
                   ),
                 ),
               ],
@@ -565,16 +896,53 @@ class _PaginaInicialState extends State<PaginaInicial> {
     );
   }
 
+  Widget _buildTimeChip(IconData icon, String time) {
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      decoration: BoxDecoration(
+        color: Colors.white.withOpacity(0.2),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(icon, color: Colors.white, size: 16),
+          const SizedBox(width: 6),
+          Text(
+            time,
+            style: const TextStyle(
+              color: Colors.white,
+              fontWeight: FontWeight.w700,
+              fontSize: 14,
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
   Widget _buildSectionHeader(String title, IconData icon) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
+      padding: const EdgeInsets.symmetric(horizontal: 24),
       child: Row(
         children: [
-          Icon(icon, color: Colors.blue),
-          const SizedBox(width: 10),
+          Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: const Color(0xFF1976D2).withOpacity(0.1),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Icon(icon, color: const Color(0xFF1976D2), size: 20),
+          ),
+          const SizedBox(width: 12),
           Text(
             title,
-            style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            style: const TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.w700,
+              color: Color(0xFF2C3E50),
+              letterSpacing: -0.3,
+            ),
           ),
         ],
       ),
@@ -583,15 +951,75 @@ class _PaginaInicialState extends State<PaginaInicial> {
 
   Widget _buildDisciplinaCard(String titulo, String horario, String sala) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 6),
-      child: Card(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        child: ListTile(
-          leading: const Icon(Icons.book, color: Colors.indigo),
-          title: Text(titulo),
-          subtitle: Text('$horario • $sala'),
-          trailing: const Icon(Icons.arrow_forward_ios),
-          onTap: () {},
+      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
+      child: Container(
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(16),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.grey.withOpacity(0.08),
+              blurRadius: 20,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
+        child: Material(
+          color: Colors.transparent,
+          borderRadius: BorderRadius.circular(16),
+          child: InkWell(
+            borderRadius: BorderRadius.circular(16),
+            onTap: () {},
+            child: Padding(
+              padding: const EdgeInsets.all(20),
+              child: Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFF1976D2).withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: const Icon(
+                      Icons.book_rounded,
+                      color: Color(0xFF1976D2),
+                      size: 20,
+                    ),
+                  ),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          titulo,
+                          style: const TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w700,
+                            color: Color(0xFF2C3E50),
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          '$horario • $sala',
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: Colors.grey[600],
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Icon(
+                    Icons.arrow_forward_ios_rounded,
+                    color: Colors.grey[400],
+                    size: 16,
+                  ),
+                ],
+              ),
+            ),
+          ),
         ),
       ),
     );
@@ -599,25 +1027,75 @@ class _PaginaInicialState extends State<PaginaInicial> {
 
   Widget _buildAvisoCard(String titulo, String descricao) {
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 8),
+      padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 8),
       child: Container(
         decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(12),
+          borderRadius: BorderRadius.circular(16),
           boxShadow: [
             BoxShadow(
-              color: Colors.grey.shade200,
-              blurRadius: 5,
-              offset: const Offset(0, 3),
+              color: Colors.grey.withOpacity(0.08),
+              blurRadius: 20,
+              offset: const Offset(0, 4),
             ),
           ],
         ),
-        child: ListTile(
-          leading: const Icon(Icons.announcement, color: Colors.amber),
-          title: Text(titulo),
-          subtitle: Text(descricao),
-          trailing: const Icon(Icons.chevron_right),
-          onTap: () {},
+        child: Material(
+          color: Colors.transparent,
+          borderRadius: BorderRadius.circular(16),
+          child: InkWell(
+            borderRadius: BorderRadius.circular(16),
+            onTap: () {},
+            child: Padding(
+              padding: const EdgeInsets.all(20),
+              child: Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: const Color(0xFFFF7043).withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: const Icon(
+                      Icons.campaign_rounded,
+                      color: Color(0xFFFF7043),
+                      size: 20,
+                    ),
+                  ),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          titulo,
+                          style: const TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.w700,
+                            color: Color(0xFF2C3E50),
+                          ),
+                        ),
+                        const SizedBox(height: 4),
+                        Text(
+                          descricao,
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: Colors.grey[600],
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Icon(
+                    Icons.arrow_forward_ios_rounded,
+                    color: Colors.grey[400],
+                    size: 16,
+                  ),
+                ],
+              ),
+            ),
+          ),
         ),
       ),
     );

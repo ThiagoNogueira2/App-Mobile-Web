@@ -43,11 +43,12 @@ class _BuscarSalaPageState extends State<BuscarSalaPage> {
         setState(() => agendamentos = []);
         return;
       }
-      final userData = await supabase
-          .from('users')
-          .select('curso_id')
-          .eq('id', user.id)
-          .maybeSingle();
+      final userData =
+          await supabase
+              .from('users')
+              .select('curso_id')
+              .eq('id', user.id)
+              .maybeSingle();
       final cursoId = userData?['curso_id'];
       if (cursoId == null) {
         setState(() => agendamentos = []);
@@ -77,7 +78,14 @@ class _BuscarSalaPageState extends State<BuscarSalaPage> {
       setState(() => agendamentos = List<Map<String, dynamic>>.from(response));
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Erro ao carregar agendamentos: $e')),
+        SnackBar(
+          content: Text('Erro ao carregar agendamentos: $e'),
+          backgroundColor: const Color(0xFF1E3A8A),
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+        ),
       );
       setState(() => agendamentos = []);
     } finally {
@@ -102,129 +110,431 @@ class _BuscarSalaPageState extends State<BuscarSalaPage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F7FA),
+      backgroundColor: const Color(0xFFF8FAFC),
+      appBar: AppBar(
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        title: const Text(
+          'Agenda de Aulas',
+          style: TextStyle(
+            fontSize: 24,
+            fontWeight: FontWeight.w700,
+            color: Color(0xFF1E3A8A),
+          ),
+        ),
+        centerTitle: true,
+        automaticallyImplyLeading: false,
+      ),
       body: Column(
         children: [
-          const SizedBox(height: 32),
-          // Seletor de dia da semana
-          SingleChildScrollView(
-            scrollDirection: Axis.horizontal,
-            padding: const EdgeInsets.symmetric(horizontal: 16),
-            child: Row(
-              children: diasSemana.map((dia) {
-                final selecionado = _diaSelecionado == dia;
-                return Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 6),
-                  child: ChoiceChip(
-                    label: Text(dia),
-                    selected: selecionado,
-                    selectedColor: Colors.blue,
-                    labelStyle: TextStyle(
-                      color: selecionado ? Colors.white : Colors.blue,
-                      fontWeight: FontWeight.bold,
-                    ),
-                    backgroundColor: Colors.white,
-                    onSelected: (v) {
-                      setState(() {
-                        _diaSelecionado = dia;
-                      });
-                      _carregarAgendamentosPorDia(dia);
-                    },
-                  ),
-                );
-              }).toList(),
+          // Header com gradiente sutil
+          Container(
+            width: double.infinity,
+            decoration: const BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [Color(0xFFEBF4FF), Color(0xFFF8FAFC)],
+              ),
             ),
-          ),
-          const SizedBox(height: 16),
-          // Lista de agendamentos
-          Expanded(
-            child: isLoading
-                ? const Center(child: CircularProgressIndicator())
-                : agendamentos.isEmpty
-                    ? const Center(
-                        child: Text(
-                          'Nenhuma aula cadastrada para este dia.',
-                          style: TextStyle(fontSize: 18, color: Colors.grey),
-                        ),
-                      )
-                    : ListView.builder(
-                        itemCount: agendamentos.length > 2 ? 2 : agendamentos.length,
-                        padding: const EdgeInsets.symmetric(
-                          vertical: 24,
-                          horizontal: 16,
-                        ),
-                        itemBuilder: (context, idx) {
-                          final ag = agendamentos[idx];
-                          final sala = ag['salas']?['numero_sala']?.toString() ?? '-';
-                          final curso = ag['cursos']?['curso'] ?? '-';
-                          final periodo = ag['cursos']?['periodo'] ?? '-';
-                          final semestre = ag['cursos']?['semestre'] ?? '-';
-                          return Card(
-                            margin: const EdgeInsets.only(bottom: 20),
-                            elevation: 4,
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(18),
-                            ),
-                            child: Padding(
-                              padding: const EdgeInsets.all(20),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  Text(
-                                    ag['aula_periodo'] ?? '-',
-                                    style: const TextStyle(
-                                      fontSize: 20,
-                                      fontWeight: FontWeight.bold,
-                                    ),
+            child: Column(
+              children: [
+                const SizedBox(height: 16),
+                // Seletor de dia da semana moderno
+                Container(
+                  margin: const EdgeInsets.symmetric(horizontal: 20),
+                  padding: const EdgeInsets.all(8),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(20),
+                    boxShadow: [
+                      BoxShadow(
+                        color: const Color(0xFF3B82F6).withOpacity(0.1),
+                        blurRadius: 20,
+                        offset: const Offset(0, 4),
+                      ),
+                    ],
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children:
+                        diasSemana.map((dia) {
+                          final selecionado = _diaSelecionado == dia;
+                          return Expanded(
+                            child: GestureDetector(
+                              onTap: () {
+                                setState(() {
+                                  _diaSelecionado = dia;
+                                });
+                                _carregarAgendamentosPorDia(dia);
+                              },
+                              child: AnimatedContainer(
+                                duration: const Duration(milliseconds: 200),
+                                padding: const EdgeInsets.symmetric(
+                                  vertical: 12,
+                                ),
+                                margin: const EdgeInsets.symmetric(
+                                  horizontal: 4,
+                                ),
+                                decoration: BoxDecoration(
+                                  gradient:
+                                      selecionado
+                                          ? const LinearGradient(
+                                            colors: [
+                                              Color(0xFF3B82F6),
+                                              Color(0xFF1E40AF),
+                                            ],
+                                            begin: Alignment.topLeft,
+                                            end: Alignment.bottomRight,
+                                          )
+                                          : null,
+                                  borderRadius: BorderRadius.circular(16),
+                                ),
+                                child: Text(
+                                  dia,
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(
+                                    color:
+                                        selecionado
+                                            ? Colors.white
+                                            : const Color(0xFF64748B),
+                                    fontWeight:
+                                        selecionado
+                                            ? FontWeight.w600
+                                            : FontWeight.w500,
+                                    fontSize: 14,
                                   ),
-                                  const SizedBox(height: 8),
-                                  Row(
-                                    children: [
-                                      const Icon(Icons.access_time, color: Colors.blue),
-                                      const SizedBox(width: 8),
-                                      Text('Início: ${ag['hora_inicio'] ?? '-'}'),
-                                      const SizedBox(width: 16),
-                                      Text('Fim: ${ag['hora_fim'] ?? '-'}'),
-                                    ],
-                                  ),
-                                  const SizedBox(height: 8),
-                                  Row(
-                                    children: [
-                                      const Icon(Icons.meeting_room, color: Colors.green),
-                                      const SizedBox(width: 8),
-                                      Text('Sala: $sala'),
-                                    ],
-                                  ),
-                                  const SizedBox(height: 8),
-                                  Row(
-                                    children: [
-                                      const Icon(Icons.school, color: Colors.deepPurple),
-                                      const SizedBox(width: 8),
-                                      Text('Curso: $curso'),
-                                      const SizedBox(width: 16),
-                                      Text('Período: $periodo'),
-                                      const SizedBox(width: 16),
-                                      Text('Semestre: $semestre'),
-                                    ],
-                                  ),
-                                ],
+                                ),
                               ),
                             ),
                           );
-                        },
+                        }).toList(),
+                  ),
+                ),
+                const SizedBox(height: 24),
+              ],
+            ),
+          ),
+          // Lista de agendamentos
+          Expanded(
+            child:
+                isLoading
+                    ? Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(16),
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              shape: BoxShape.circle,
+                              boxShadow: [
+                                BoxShadow(
+                                  color: const Color(
+                                    0xFF3B82F6,
+                                  ).withOpacity(0.1),
+                                  blurRadius: 20,
+                                  offset: const Offset(0, 4),
+                                ),
+                              ],
+                            ),
+                            child: const CircularProgressIndicator(
+                              valueColor: AlwaysStoppedAnimation<Color>(
+                                Color(0xFF3B82F6),
+                              ),
+                              strokeWidth: 3,
+                            ),
+                          ),
+                          const SizedBox(height: 16),
+                          const Text(
+                            'Carregando aulas...',
+                            style: TextStyle(
+                              color: Color(0xFF64748B),
+                              fontSize: 16,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ],
                       ),
+                    )
+                    : agendamentos.isEmpty
+                    ? Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(24),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFFEBF4FF),
+                              shape: BoxShape.circle,
+                            ),
+                            child: const Icon(
+                              Icons.event_busy,
+                              size: 48,
+                              color: Color(0xFF3B82F6),
+                            ),
+                          ),
+                          const SizedBox(height: 16),
+                          const Text(
+                            'Nenhuma aula cadastrada',
+                            style: TextStyle(
+                              fontSize: 20,
+                              fontWeight: FontWeight.w600,
+                              color: Color(0xFF1E293B),
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          const Text(
+                            'para este dia.',
+                            style: TextStyle(
+                              fontSize: 16,
+                              color: Color(0xFF64748B),
+                            ),
+                          ),
+                        ],
+                      ),
+                    )
+                    : ListView.builder(
+                      itemCount:
+                          agendamentos.length > 2 ? 2 : agendamentos.length,
+                      padding: const EdgeInsets.all(20),
+                      itemBuilder: (context, idx) {
+                        final ag = agendamentos[idx];
+                        final sala =
+                            ag['salas']?['numero_sala']?.toString() ?? '-';
+                        final curso = ag['cursos']?['curso'] ?? '-';
+                        final periodo = ag['cursos']?['periodo'] ?? '-';
+                        final semestre = ag['cursos']?['semestre'] ?? '-';
+
+                        return Container(
+                          margin: const EdgeInsets.only(bottom: 16),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(20),
+                            boxShadow: [
+                              BoxShadow(
+                                color: const Color(
+                                  0xFF3B82F6,
+                                ).withOpacity(0.08),
+                                blurRadius: 20,
+                                offset: const Offset(0, 4),
+                              ),
+                            ],
+                          ),
+                          child: Padding(
+                            padding: const EdgeInsets.all(24),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                // Header do card
+                                Row(
+                                  children: [
+                                    Container(
+                                      padding: const EdgeInsets.all(12),
+                                      decoration: BoxDecoration(
+                                        gradient: const LinearGradient(
+                                          colors: [
+                                            Color(0xFF3B82F6),
+                                            Color(0xFF1E40AF),
+                                          ],
+                                          begin: Alignment.topLeft,
+                                          end: Alignment.bottomRight,
+                                        ),
+                                        borderRadius: BorderRadius.circular(12),
+                                      ),
+                                      child: const Icon(
+                                        Icons.school,
+                                        color: Colors.white,
+                                        size: 20,
+                                      ),
+                                    ),
+                                    const SizedBox(width: 16),
+                                    Expanded(
+                                      child: Text(
+                                        ag['aula_periodo'] ?? '-',
+                                        style: const TextStyle(
+                                          fontSize: 18,
+                                          fontWeight: FontWeight.w700,
+                                          color: Color(0xFF1E293B),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 20),
+
+                                // Informações em grid
+                                Row(
+                                  children: [
+                                    Expanded(
+                                      child: _buildInfoItem(
+                                        Icons.access_time_rounded,
+                                        'Início',
+                                        ag['hora_inicio'] ?? '-',
+                                        const Color(0xFF10B981),
+                                      ),
+                                    ),
+                                    const SizedBox(width: 16),
+                                    Expanded(
+                                      child: _buildInfoItem(
+                                        Icons.schedule,
+                                        'Fim',
+                                        ag['hora_fim'] ?? '-',
+                                        const Color(0xFFF59E0B),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 16),
+
+                                Row(
+                                  children: [
+                                    Expanded(
+                                      child: _buildInfoItem(
+                                        Icons.meeting_room_rounded,
+                                        'Sala',
+                                        sala,
+                                        const Color(0xFF8B5CF6),
+                                      ),
+                                    ),
+                                    const SizedBox(width: 16),
+                                    Expanded(
+                                      child: _buildInfoItem(
+                                        Icons.book_rounded,
+                                        'Curso',
+                                        curso,
+                                        const Color(0xFF3B82F6),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                                const SizedBox(height: 16),
+
+                                // Informações adicionais
+                                Container(
+                                  padding: const EdgeInsets.all(16),
+                                  decoration: BoxDecoration(
+                                    color: const Color(0xFFF8FAFC),
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                  child: Row(
+                                    children: [
+                                      Expanded(
+                                        child: Text(
+                                          'Período: $periodo',
+                                          style: const TextStyle(
+                                            fontSize: 14,
+                                            fontWeight: FontWeight.w500,
+                                            color: Color(0xFF64748B),
+                                          ),
+                                        ),
+                                      ),
+                                      Container(
+                                        width: 1,
+                                        height: 16,
+                                        color: const Color(0xFFE2E8F0),
+                                      ),
+                                      const SizedBox(width: 16),
+                                      Expanded(
+                                        child: Text(
+                                          'Semestre: $semestre',
+                                          style: const TextStyle(
+                                            fontSize: 14,
+                                            fontWeight: FontWeight.w500,
+                                            color: Color(0xFF64748B),
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        );
+                      },
+                    ),
           ),
         ],
       ),
-      bottomNavigationBar: BottomNavigationBar(
-        currentIndex: _selectedIndex,
-        onTap: _onNavTap,
-        selectedItemColor: Colors.blue,
-        unselectedItemColor: Colors.grey,
-        items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Início'),
-          BottomNavigationBarItem(icon: Icon(Icons.schedule), label: 'Agenda'),
-          BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Perfil'),
+      bottomNavigationBar: Container(
+        decoration: BoxDecoration(
+          color: Colors.white,
+          boxShadow: [
+            BoxShadow(
+              color: const Color(0xFF3B82F6).withOpacity(0.1),
+              blurRadius: 20,
+              offset: const Offset(0, -4),
+            ),
+          ],
+        ),
+        child: BottomNavigationBar(
+          currentIndex: _selectedIndex,
+          onTap: _onNavTap,
+          selectedItemColor: const Color(0xFF3B82F6),
+          unselectedItemColor: const Color(0xFF94A3B8),
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+          selectedFontSize: 12,
+          unselectedFontSize: 12,
+          type: BottomNavigationBarType.fixed,
+          items: const [
+            BottomNavigationBarItem(
+              icon: Icon(Icons.home_rounded),
+              label: 'Início',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.schedule_rounded),
+              label: 'Agenda',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.person_rounded),
+              label: 'Perfil',
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildInfoItem(
+    IconData icon,
+    String label,
+    String value,
+    Color color,
+  ) {
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: color.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(icon, color: color, size: 16),
+              const SizedBox(width: 6),
+              Text(
+                label,
+                style: TextStyle(
+                  fontSize: 12,
+                  fontWeight: FontWeight.w600,
+                  color: color,
+                ),
+              ),
+            ],
+          ),
+          const SizedBox(height: 4),
+          Text(
+            value,
+            style: const TextStyle(
+              fontSize: 14,
+              fontWeight: FontWeight.w600,
+              color: Color(0xFF1E293B),
+            ),
+          ),
         ],
       ),
     );

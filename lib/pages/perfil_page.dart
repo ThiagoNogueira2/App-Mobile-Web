@@ -84,15 +84,41 @@ class _PerfilPageState extends State<PerfilPage> {
         editando = false;
       });
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Perfil atualizado com sucesso!')),
+        SnackBar(
+          content: const Row(
+            children: [
+              Icon(Icons.check_circle, color: Colors.white),
+              SizedBox(width: 12),
+              Text('Perfil atualizado com sucesso!'),
+            ],
+          ),
+          backgroundColor: const Color(0xFF1976D2),
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+        ),
       );
     } catch (e) {
       setState(() {
         carregando = false;
       });
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text('Erro ao atualizar perfil: $e')));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Row(
+            children: [
+              const Icon(Icons.error, color: Colors.white),
+              const SizedBox(width: 12),
+              Expanded(child: Text('Erro ao atualizar perfil: $e')),
+            ],
+          ),
+          backgroundColor: Colors.red[600],
+          behavior: SnackBarBehavior.floating,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+        ),
+      );
     }
   }
 
@@ -100,193 +126,338 @@ class _PerfilPageState extends State<PerfilPage> {
   Widget build(BuildContext context) {
     if (!editando && userData != null) preencherControllers();
     return Scaffold(
+      backgroundColor: const Color(0xFFF8FAFC),
       appBar: AppBar(
-        title: const Text('Perfil do Usuário'),
-        backgroundColor: Colors.blue,
+        elevation: 0,
+        backgroundColor: Colors.transparent,
+        foregroundColor: const Color(0xFF1E293B),
+        centerTitle: true,
+        title: const Text(
+          'Meu Perfil',
+          style: TextStyle(
+            fontSize: 24,
+            fontWeight: FontWeight.w600,
+            color: Color(0xFF1E293B),
+          ),
+        ),
         actions: [
           if (!editando && userData != null)
-            IconButton(
-              icon: const Icon(Icons.edit),
-              onPressed: () {
-                setState(() {
-                  editando = true;
-                });
-              },
+            Container(
+              margin: const EdgeInsets.only(right: 16),
+              decoration: BoxDecoration(
+                color: const Color(0xFF3B82F6),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: IconButton(
+                icon: const Icon(Icons.edit_rounded, color: Colors.white),
+                onPressed: () {
+                  setState(() {
+                    editando = true;
+                  });
+                },
+              ),
             ),
         ],
       ),
       body:
           carregando
-              ? const Center(child: CircularProgressIndicator())
-              : userData == null
               ? const Center(
-                child: Text(
-                  'Nenhum dado de perfil encontrado ou usuário não autenticado.',
-                  style: TextStyle(fontSize: 18),
+                child: CircularProgressIndicator(
+                  valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF3B82F6)),
+                  strokeWidth: 3,
                 ),
               )
-              : Center(
-                child: Padding(
-                  padding: const EdgeInsets.all(24),
-                  child:
-                      editando
-                          ? Form(
-                            key: _formKey,
-                            child: SingleChildScrollView(
-                              child: Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  const CircleAvatar(
-                                    radius: 50,
-                                    backgroundColor: Colors.blueAccent,
-                                    child: Icon(
-                                      Icons.person,
-                                      size: 60,
-                                      color: Colors.white,
-                                    ),
-                                  ),
-                                  const SizedBox(height: 24),
-                                  Card(
-                                    elevation: 6,
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(20),
-                                    ),
-                                    child: Padding(
-                                      padding: const EdgeInsets.symmetric(
-                                        vertical: 24,
-                                        horizontal: 28,
-                                      ),
-                                      child: Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          _buildEditField(
-                                            _nomeController,
-                                            'Nome',
-                                          ),
-                                          _buildEditField(
-                                            _emailController,
-                                            'E-mail',
-                                            email: true,
-                                          ),
-                                          _buildEditField(
-                                            _cursoController,
-                                            'Curso',
-                                          ),
-                                          _buildEditField(
-                                            _semestreController,
-                                            'Semestre',
-                                            number: true,
-                                          ),
-                                          _buildEditField(
-                                            _periodoController,
-                                            'Período',
-                                          ),
-                                          const SizedBox(height: 24),
-                                          Row(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.end,
-                                            children: [
-                                              TextButton(
-                                                onPressed: () {
-                                                  setState(() {
-                                                    editando = false;
-                                                  });
-                                                },
-                                                child: const Text('Cancelar'),
-                                              ),
-                                              const SizedBox(width: 16),
-                                              ElevatedButton(
-                                                onPressed: () {
-                                                  if (_formKey.currentState!
-                                                      .validate()) {
-                                                    atualizarPerfil();
-                                                  }
-                                                },
-                                                child: const Text('Salvar'),
-                                              ),
-                                            ],
-                                          ),
-                                        ],
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          )
-                          : Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              const CircleAvatar(
-                                radius: 50,
-                                backgroundColor: Colors.blueAccent,
-                                child: Icon(
-                                  Icons.person,
-                                  size: 60,
-                                  color: Colors.white,
-                                ),
-                              ),
-                              const SizedBox(height: 24),
-                              Card(
-                                elevation: 6,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(20),
-                                ),
-                                child: Padding(
-                                  padding: const EdgeInsets.symmetric(
-                                    vertical: 24,
-                                    horizontal: 28,
-                                  ),
-                                  child: Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      _buildInfoRow(
-                                        Icons.person,
-                                        'Nome',
-                                        userData?['nome'],
-                                      ),
-                                      _buildInfoRow(
-                                        Icons.email,
-                                        'E-mail',
-                                        userData?['email'],
-                                      ),
-                                      _buildInfoRow(
-                                        Icons.school,
-                                        'Curso',
-                                        userData?['cursos']?['curso'],
-                                      ),
-                                      _buildInfoRow(
-                                        Icons.calendar_today,
-                                        'Semestre',
-                                        userData?['cursos']?['semestre']
-                                            ?.toString(),
-                                      ),
-                                      _buildInfoRow(
-                                        Icons.access_time,
-                                        'Período',
-                                        userData?['cursos']?['periodo'],
-                                      ),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                            ],
+              : userData == null
+              ? Center(
+                child: Container(
+                  margin: const EdgeInsets.all(24),
+                  padding: const EdgeInsets.all(32),
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(20),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.blue.withOpacity(0.1),
+                        blurRadius: 20,
+                        offset: const Offset(0, 8),
+                      ),
+                    ],
+                  ),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        Icons.person_off_rounded,
+                        size: 64,
+                        color: Colors.grey[400],
+                      ),
+                      const SizedBox(height: 16),
+                      Text(
+                        'Nenhum dado de perfil encontrado',
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.w500,
+                          color: Colors.grey[600],
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        'Usuário não autenticado',
+                        style: TextStyle(fontSize: 14, color: Colors.grey[500]),
+                        textAlign: TextAlign.center,
+                      ),
+                    ],
+                  ),
+                ),
+              )
+              : SingleChildScrollView(
+                padding: const EdgeInsets.all(24),
+                child: Column(
+                  children: [
+                    // Avatar com gradiente
+                    Container(
+                      decoration: BoxDecoration(
+                        gradient: const LinearGradient(
+                          colors: [Color(0xFF3B82F6), Color(0xFF1D4ED8)],
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                        ),
+                        borderRadius: BorderRadius.circular(60),
+                        boxShadow: [
+                          BoxShadow(
+                            color: const Color(0xFF3B82F6).withOpacity(0.3),
+                            blurRadius: 20,
+                            offset: const Offset(0, 8),
                           ),
+                        ],
+                      ),
+                      child: const CircleAvatar(
+                        radius: 60,
+                        backgroundColor: Colors.transparent,
+                        child: Icon(
+                          Icons.person_rounded,
+                          size: 70,
+                          color: Colors.white,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 32),
+
+                    // Card principal
+                    Container(
+                      width: double.infinity,
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(24),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.blue.withOpacity(0.08),
+                            blurRadius: 24,
+                            offset: const Offset(0, 12),
+                          ),
+                        ],
+                      ),
+                      child: Padding(
+                        padding: const EdgeInsets.all(32),
+                        child: editando ? _buildEditMode() : _buildViewMode(),
+                      ),
+                    ),
+                  ],
                 ),
               ),
     );
   }
 
-  Widget _buildInfoRow(IconData icon, String label, String? value) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 16),
+  Widget _buildViewMode() {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        const Text(
+          'Informações Pessoais',
+          style: TextStyle(
+            fontSize: 20,
+            fontWeight: FontWeight.w600,
+            color: Color(0xFF1E293B),
+          ),
+        ),
+        const SizedBox(height: 24),
+        _buildInfoRow(Icons.person_rounded, 'Nome', userData?['nome']),
+        _buildInfoRow(Icons.email_rounded, 'E-mail', userData?['email']),
+        const SizedBox(height: 24),
+        const Text(
+          'Informações Acadêmicas',
+          style: TextStyle(
+            fontSize: 20,
+            fontWeight: FontWeight.w600,
+            color: Color(0xFF1E293B),
+          ),
+        ),
+        const SizedBox(height: 24),
+        _buildInfoRow(
+          Icons.school_rounded,
+          'Curso',
+          userData?['cursos']?['curso'],
+        ),
+        _buildInfoRow(
+          Icons.calendar_today_rounded,
+          'Semestre',
+          userData?['cursos']?['semestre']?.toString(),
+        ),
+        _buildInfoRow(
+          Icons.access_time_rounded,
+          'Período',
+          userData?['cursos']?['periodo'],
+        ),
+      ],
+    );
+  }
+
+  Widget _buildEditMode() {
+    return Form(
+      key: _formKey,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            'Editar Perfil',
+            style: TextStyle(
+              fontSize: 20,
+              fontWeight: FontWeight.w600,
+              color: Color(0xFF1E293B),
+            ),
+          ),
+          const SizedBox(height: 24),
+          _buildEditField(_nomeController, 'Nome', Icons.person_rounded),
+          _buildEditField(
+            _emailController,
+            'E-mail',
+            Icons.email_rounded,
+            email: true,
+          ),
+          const SizedBox(height: 16),
+          const Text(
+            'Informações Acadêmicas',
+            style: TextStyle(
+              fontSize: 18,
+              fontWeight: FontWeight.w500,
+              color: Color(0xFF475569),
+            ),
+          ),
+          const SizedBox(height: 16),
+          _buildEditField(_cursoController, 'Curso', Icons.school_rounded),
+          _buildEditField(
+            _semestreController,
+            'Semestre',
+            Icons.calendar_today_rounded,
+            number: true,
+          ),
+          _buildEditField(
+            _periodoController,
+            'Período',
+            Icons.access_time_rounded,
+          ),
+          const SizedBox(height: 32),
+          Row(
+            children: [
+              Expanded(
+                child: OutlinedButton(
+                  onPressed: () {
+                    setState(() {
+                      editando = false;
+                    });
+                  },
+                  style: OutlinedButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    side: const BorderSide(color: Color(0xFF64748B)),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                  child: const Text(
+                    'Cancelar',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w500,
+                      color: Color(0xFF64748B),
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: ElevatedButton(
+                  onPressed: () {
+                    if (_formKey.currentState!.validate()) {
+                      atualizarPerfil();
+                    }
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF3B82F6),
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    elevation: 0,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                  child: const Text(
+                    'Salvar',
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildInfoRow(IconData icon, String label, dynamic value) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 20),
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: const Color(0xFFF8FAFC),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: const Color(0xFFE2E8F0), width: 1),
+      ),
       child: Row(
         children: [
-          Icon(icon, color: Colors.blueAccent),
-          const SizedBox(width: 10),
-          Text('$label: ${value ?? '-'}', style: const TextStyle(fontSize: 18)),
+          Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: const Color(0xFF3B82F6).withOpacity(0.1),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Icon(icon, color: const Color(0xFF3B82F6), size: 20),
+          ),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  label,
+                  style: const TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w500,
+                    color: Color(0xFF64748B),
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  value?.toString() ?? '-',
+                  style: const TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.w500,
+                    color: Color(0xFF1E293B),
+                  ),
+                ),
+              ],
+            ),
+          ),
         ],
       ),
     );
@@ -294,12 +465,13 @@ class _PerfilPageState extends State<PerfilPage> {
 
   Widget _buildEditField(
     TextEditingController controller,
-    String label, {
+    String label,
+    IconData icon, {
     bool email = false,
     bool number = false,
   }) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 16),
+    return Container(
+      margin: const EdgeInsets.only(bottom: 20),
       child: TextFormField(
         controller: controller,
         keyboardType:
@@ -312,9 +484,48 @@ class _PerfilPageState extends State<PerfilPage> {
           if (number && int.tryParse(value) == null) return 'Somente números';
           return null;
         },
+        style: const TextStyle(
+          fontSize: 16,
+          fontWeight: FontWeight.w500,
+          color: Color(0xFF1E293B),
+        ),
         decoration: InputDecoration(
           labelText: label,
-          border: const OutlineInputBorder(),
+          labelStyle: const TextStyle(
+            color: Color(0xFF64748B),
+            fontWeight: FontWeight.w500,
+          ),
+          prefixIcon: Container(
+            margin: const EdgeInsets.all(12),
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: const Color(0xFF3B82F6).withOpacity(0.1),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Icon(icon, color: const Color(0xFF3B82F6), size: 20),
+          ),
+          filled: true,
+          fillColor: const Color(0xFFF8FAFC),
+          border: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
+          ),
+          enabledBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: const BorderSide(color: Color(0xFFE2E8F0)),
+          ),
+          focusedBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: const BorderSide(color: Color(0xFF3B82F6), width: 2),
+          ),
+          errorBorder: OutlineInputBorder(
+            borderRadius: BorderRadius.circular(12),
+            borderSide: const BorderSide(color: Colors.red),
+          ),
+          contentPadding: const EdgeInsets.symmetric(
+            horizontal: 20,
+            vertical: 16,
+          ),
         ),
       ),
     );
