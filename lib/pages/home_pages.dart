@@ -13,6 +13,9 @@ class _PaginaInicialState extends State<PaginaInicial> {
   int _indiceAtual = 0;
   String _nomeUsuario = 'Carregando...';
 
+  final List<String> diasSemana = ['Seg', 'Ter', 'Qua', 'Qui', 'Sex'];
+  String _diaSelecionado = _diaSemanaHoje();
+
   @override
   void initState() {
     super.initState();
@@ -126,231 +129,301 @@ class _PaginaInicialState extends State<PaginaInicial> {
     return null;
   }
 
+  static String _diaSemanaHoje() {
+    final hoje = DateTime.now().weekday;
+    switch (hoje) {
+      case 1:
+        return 'Seg';
+      case 2:
+        return 'Ter';
+      case 3:
+        return 'Qua';
+      case 4:
+        return 'Qui';
+      case 5:
+        return 'Sex';
+      default:
+        return 'Seg';
+    }
+  }
+
   Widget buildAgendaPage() {
-    return FutureBuilder<List<Map<String, dynamic>>>(
-      future: _buscarAgendamentosHoje(),
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
-          return const Center(
-            child: CircularProgressIndicator(
-              valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF1976D2)),
+    return Column(
+      children: [
+        // Imagem no topo da agenda
+        Container(
+          height: 140,
+          width: double.infinity,
+          decoration: const BoxDecoration(
+            image: DecorationImage(
+              image: AssetImage('assets/images/aulas.jpeg'),
+              fit: BoxFit.cover,
             ),
-          );
-        }
-        final agendamentos = snapshot.data ?? [];
-        return Column(
-          children: [
-            // Imagem decorativa no topo da agenda
-            Container(
-              width: double.infinity,
-              height: 280,
-              margin: const EdgeInsets.only(
-                bottom: 32,
-                left: 24,
-                right: 24,
-                top: 8,
-              ),
-              decoration: BoxDecoration(
-                borderRadius: BorderRadius.circular(24),
-                image: const DecorationImage(
-                  image: AssetImage('assets/images/perfil.jpeg'),
-                  fit: BoxFit.cover,
-                ),
+          ),
+          child: Container(
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [
+                  const Color(0xCC1976D2),
+                  const Color(0xCC1565C0),
+                  const Color(0xCC0D47A1),
+                  Colors.transparent,
+                ],
               ),
             ),
-            Expanded(
-              child:
-                  agendamentos.isEmpty
-                      ? Center(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(
-                              Icons.event_available,
-                              size: 80,
-                              color: Colors.blue[200],
-                            ),
-                            const SizedBox(height: 16),
-                            Text(
-                              'Nenhuma aula para hoje',
-                              style: TextStyle(
-                                fontSize: 20,
-                                fontWeight: FontWeight.w600,
-                                color: Colors.grey[600],
-                              ),
-                            ),
-                            Text(
-                              'Aproveite seu tempo livre!',
-                              style: TextStyle(
-                                fontSize: 16,
-                                color: Colors.grey[500],
-                              ),
-                            ),
-                          ],
+          ),
+        ),
+        // Seletor de dias da semana
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            children:
+                diasSemana.map((dia) {
+                  final selecionado = _diaSelecionado == dia;
+                  return Expanded(
+                    child: GestureDetector(
+                      onTap: () {
+                        setState(() {
+                          _diaSelecionado = dia;
+                        });
+                      },
+                      child: AnimatedContainer(
+                        duration: const Duration(milliseconds: 200),
+                        margin: const EdgeInsets.symmetric(horizontal: 4),
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                        decoration: BoxDecoration(
+                          gradient:
+                              selecionado
+                                  ? const LinearGradient(
+                                    colors: [
+                                      Color(0xFF1976D2),
+                                      Color(0xFF42A5F5),
+                                    ],
+                                    begin: Alignment.topLeft,
+                                    end: Alignment.bottomRight,
+                                  )
+                                  : null,
+                          color: selecionado ? null : Colors.grey[200],
+                          borderRadius: BorderRadius.circular(16),
                         ),
-                      )
-                      : ListView.builder(
-                        itemCount:
-                            agendamentos.length > 2 ? 2 : agendamentos.length,
-                        padding: const EdgeInsets.all(24),
-                        itemBuilder: (context, idx) {
-                          final ag = agendamentos[idx];
-                          final sala =
-                              ag['salas']?['numero_sala']?.toString() ?? '-';
-                          final curso = ag['cursos']?['curso'] ?? '-';
-                          final periodo = ag['cursos']?['periodo'] ?? '-';
-                          final semestre = ag['cursos']?['semestre'] ?? '-';
-                          return Container(
-                            margin: const EdgeInsets.only(bottom: 16),
+                        child: Center(
+                          child: Text(
+                            dia,
+                            style: TextStyle(
+                              color:
+                                  selecionado ? Colors.white : Colors.blueGrey,
+                              fontWeight: FontWeight.w700,
+                              fontSize: 16,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  );
+                }).toList(),
+          ),
+        ),
+        // Lista de agendamentos do dia selecionado
+        Expanded(
+          child: FutureBuilder<List<Map<String, dynamic>>>(
+            future: _buscarAgendamentosPorDia(_diaSelecionado),
+            builder: (context, snapshot) {
+              if (snapshot.connectionState == ConnectionState.waiting) {
+                return const Center(
+                  child: CircularProgressIndicator(
+                    valueColor: AlwaysStoppedAnimation<Color>(
+                      Color(0xFF1976D2),
+                    ),
+                  ),
+                );
+              }
+              final agendamentos = snapshot.data ?? [];
+              if (agendamentos.isEmpty) {
+                return Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(
+                        Icons.event_available,
+                        size: 80,
+                        color: Colors.blue[200],
+                      ),
+                      const SizedBox(height: 16),
+                      Text(
+                        'Nenhuma aula para este dia',
+                        style: TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.w600,
+                          color: Colors.grey[600],
+                        ),
+                      ),
+                      Text(
+                        'Aproveite seu tempo livre!',
+                        style: TextStyle(fontSize: 16, color: Colors.grey[500]),
+                      ),
+                    ],
+                  ),
+                );
+              }
+              return ListView.builder(
+                padding: const EdgeInsets.all(24),
+                itemCount: agendamentos.length,
+                itemBuilder: (context, idx) {
+                  final ag = agendamentos[idx];
+                  final sala = ag['salas']?['numero_sala']?.toString() ?? '-';
+                  final curso = ag['cursos']?['curso'] ?? '-';
+                  final periodo = ag['cursos']?['periodo'] ?? '-';
+                  final semestre = ag['cursos']?['semestre'] ?? '-';
+                  return Container(
+                    margin: const EdgeInsets.only(bottom: 16),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(20),
+                      boxShadow: [
+                        BoxShadow(
+                          color: const Color(0xFF3B82F6).withOpacity(0.08),
+                          blurRadius: 20,
+                          offset: const Offset(0, 4),
+                        ),
+                      ],
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.all(24),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          // Header do card
+                          Row(
+                            children: [
+                              Container(
+                                padding: const EdgeInsets.all(12),
+                                decoration: BoxDecoration(
+                                  gradient: const LinearGradient(
+                                    colors: [
+                                      Color(0xFF3B82F6),
+                                      Color(0xFF1E40AF),
+                                    ],
+                                    begin: Alignment.topLeft,
+                                    end: Alignment.bottomRight,
+                                  ),
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                child: const Icon(
+                                  Icons.school,
+                                  color: Colors.white,
+                                  size: 20,
+                                ),
+                              ),
+                              const SizedBox(width: 16),
+                              Expanded(
+                                child: Text(
+                                  ag['aula_periodo'] ?? '-',
+                                  style: const TextStyle(
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.w700,
+                                    color: Color(0xFF1E293B),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 20),
+                          // Informações em grid
+                          Row(
+                            children: [
+                              Expanded(
+                                child: _buildInfoItem(
+                                  Icons.access_time_rounded,
+                                  'Início',
+                                  ag['hora_inicio'] ?? '-',
+                                  const Color(0xFF10B981),
+                                ),
+                              ),
+                              const SizedBox(width: 16),
+                              Expanded(
+                                child: _buildInfoItem(
+                                  Icons.schedule,
+                                  'Fim',
+                                  ag['hora_fim'] ?? '-',
+                                  const Color(0xFFF59E0B),
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 16),
+                          Row(
+                            children: [
+                              Expanded(
+                                child: _buildInfoItem(
+                                  Icons.meeting_room_rounded,
+                                  'Sala',
+                                  sala,
+                                  const Color(0xFF8B5CF6),
+                                ),
+                              ),
+                              const SizedBox(width: 16),
+                              Expanded(
+                                child: _buildInfoItem(
+                                  Icons.book_rounded,
+                                  'Curso',
+                                  curso,
+                                  const Color(0xFF3B82F6),
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 16),
+                          // Informações adicionais
+                          Container(
+                            padding: const EdgeInsets.all(16),
                             decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(20),
-                              boxShadow: [
-                                BoxShadow(
-                                  color: const Color(
-                                    0xFF3B82F6,
-                                  ).withOpacity(0.08),
-                                  blurRadius: 20,
-                                  offset: const Offset(0, 4),
+                              color: const Color(0xFFF8FAFC),
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            child: Row(
+                              children: [
+                                Expanded(
+                                  child: Text(
+                                    'Período: $periodo',
+                                    style: const TextStyle(
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w500,
+                                      color: Color(0xFF64748B),
+                                    ),
+                                  ),
+                                ),
+                                Container(
+                                  width: 1,
+                                  height: 16,
+                                  color: const Color(0xFFE2E8F0),
+                                ),
+                                const SizedBox(width: 16),
+                                Expanded(
+                                  child: Text(
+                                    'Semestre: $semestre',
+                                    style: const TextStyle(
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w500,
+                                      color: Color(0xFF64748B),
+                                    ),
+                                  ),
                                 ),
                               ],
                             ),
-                            child: Padding(
-                              padding: const EdgeInsets.all(24),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  // Header do card
-                                  Row(
-                                    children: [
-                                      Container(
-                                        padding: const EdgeInsets.all(12),
-                                        decoration: BoxDecoration(
-                                          gradient: const LinearGradient(
-                                            colors: [
-                                              Color(0xFF3B82F6),
-                                              Color(0xFF1E40AF),
-                                            ],
-                                            begin: Alignment.topLeft,
-                                            end: Alignment.bottomRight,
-                                          ),
-                                          borderRadius: BorderRadius.circular(
-                                            12,
-                                          ),
-                                        ),
-                                        child: const Icon(
-                                          Icons.school,
-                                          color: Colors.white,
-                                          size: 20,
-                                        ),
-                                      ),
-                                      const SizedBox(width: 16),
-                                      Expanded(
-                                        child: Text(
-                                          ag['aula_periodo'] ?? '-',
-                                          style: const TextStyle(
-                                            fontSize: 18,
-                                            fontWeight: FontWeight.w700,
-                                            color: Color(0xFF1E293B),
-                                          ),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                  const SizedBox(height: 20),
-                                  // Informações em grid
-                                  Row(
-                                    children: [
-                                      Expanded(
-                                        child: _buildInfoItem(
-                                          Icons.access_time_rounded,
-                                          'Início',
-                                          ag['hora_inicio'] ?? '-',
-                                          const Color(0xFF10B981),
-                                        ),
-                                      ),
-                                      const SizedBox(width: 16),
-                                      Expanded(
-                                        child: _buildInfoItem(
-                                          Icons.schedule,
-                                          'Fim',
-                                          ag['hora_fim'] ?? '-',
-                                          const Color(0xFFF59E0B),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                  const SizedBox(height: 16),
-                                  Row(
-                                    children: [
-                                      Expanded(
-                                        child: _buildInfoItem(
-                                          Icons.meeting_room_rounded,
-                                          'Sala',
-                                          sala,
-                                          const Color(0xFF8B5CF6),
-                                        ),
-                                      ),
-                                      const SizedBox(width: 16),
-                                      Expanded(
-                                        child: _buildInfoItem(
-                                          Icons.book_rounded,
-                                          'Curso',
-                                          curso,
-                                          const Color(0xFF3B82F6),
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                  const SizedBox(height: 16),
-                                  // Informações adicionais
-                                  Container(
-                                    padding: const EdgeInsets.all(16),
-                                    decoration: BoxDecoration(
-                                      color: const Color(0xFFF8FAFC),
-                                      borderRadius: BorderRadius.circular(12),
-                                    ),
-                                    child: Row(
-                                      children: [
-                                        Expanded(
-                                          child: Text(
-                                            'Período: $periodo',
-                                            style: const TextStyle(
-                                              fontSize: 14,
-                                              fontWeight: FontWeight.w500,
-                                              color: Color(0xFF64748B),
-                                            ),
-                                          ),
-                                        ),
-                                        Container(
-                                          width: 1,
-                                          height: 16,
-                                          color: const Color(0xFFE2E8F0),
-                                        ),
-                                        const SizedBox(width: 16),
-                                        Expanded(
-                                          child: Text(
-                                            'Semestre: $semestre',
-                                            style: const TextStyle(
-                                              fontSize: 14,
-                                              fontWeight: FontWeight.w500,
-                                              color: Color(0xFF64748B),
-                                            ),
-                                          ),
-                                        ),
-                                      ],
-                                    ),
-                                  ),
-                                ],
-                              ),
-                            ),
-                          );
-                        },
+                          ),
+                        ],
                       ),
-            ),
-          ],
-        );
-      },
+                    ),
+                  );
+                },
+              );
+            },
+          ),
+        ),
+      ],
     );
   }
 
@@ -633,6 +706,66 @@ class _PaginaInicialState extends State<PaginaInicial> {
             'Filosofia Moderna',
             'Quarta - 15:00',
             'Sala 202',
+          ),
+
+          const SizedBox(height: 32),
+
+          // Card motivacional elegante
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 24),
+            child: Container(
+              height: 140,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(20),
+                image: const DecorationImage(
+                  image: AssetImage('assets/images/aulas.jpeg'),
+                  fit: BoxFit.cover,
+                ),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.blue.withOpacity(0.08),
+                    blurRadius: 20,
+                    offset: const Offset(0, 8),
+                  ),
+                ],
+              ),
+              child: Container(
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(20),
+                  gradient: const LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: [
+                      Color(0xCC1976D2), // azul semi-transparente
+                      Color(0xCC1565C0),
+                      Color(0xCC0D47A1),
+                      Colors.transparent,
+                    ],
+                  ),
+                ),
+                child: Padding(
+                  padding: const EdgeInsets.all(24),
+                  child: Align(
+                    alignment: Alignment.bottomLeft,
+                    child: Text(
+                      '“O sucesso é a soma de pequenos esforços repetidos dia após dia.”',
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 18,
+                        fontWeight: FontWeight.w700,
+                        shadows: [
+                          Shadow(
+                            color: Colors.black26,
+                            blurRadius: 8,
+                            offset: Offset(0, 2),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+            ),
           ),
 
           const SizedBox(height: 32),
@@ -1099,5 +1232,44 @@ class _PaginaInicialState extends State<PaginaInicial> {
         ),
       ),
     );
+  }
+
+  // Função para buscar agendamentos do dia selecionado
+  Future<List<Map<String, dynamic>>> _buscarAgendamentosPorDia(
+    String diaSemana,
+  ) async {
+    final supabase = Supabase.instance.client;
+    final user = supabase.auth.currentUser;
+    if (user == null) return [];
+    final userData =
+        await supabase
+            .from('users')
+            .select('curso_id')
+            .eq('id', user.id)
+            .maybeSingle();
+    final cursoId = userData?['curso_id'];
+    if (cursoId == null) return [];
+    // Descobre a data da próxima ocorrência do dia selecionado
+    final hoje = DateTime.now();
+    int targetWeekday = diasSemana.indexOf(diaSemana) + 1;
+    int diff = (targetWeekday - hoje.weekday) % 7;
+    final dataSelecionada = hoje.add(Duration(days: diff));
+    final diaStr =
+        '${dataSelecionada.year.toString().padLeft(4, '0')}-${dataSelecionada.month.toString().padLeft(2, '0')}-${dataSelecionada.day.toString().padLeft(2, '0')}';
+    final response = await supabase
+        .from('agendamento')
+        .select('''
+          id,
+          dia,
+          aula_periodo,
+          hora_inicio,
+          hora_fim,
+          cursos(id, curso, semestre, periodo),
+          salas(id, numero_sala)
+        ''')
+        .eq('dia', diaStr)
+        .eq('curso_id', cursoId)
+        .order('hora_inicio');
+    return List<Map<String, dynamic>>.from(response);
   }
 }

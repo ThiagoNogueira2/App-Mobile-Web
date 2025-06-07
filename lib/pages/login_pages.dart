@@ -91,7 +91,7 @@ class _LoginPageState extends State<LoginPage> {
               fit: BoxFit.fill,
             ),
           ),
-          Container(color: Colors.black.withOpacity(0.4)),
+          Container(color: Colors.black.withOpacity(0.2)),
           SingleChildScrollView(
             padding: EdgeInsets.symmetric(
               horizontal: AppDimensions.paddingMedium,
