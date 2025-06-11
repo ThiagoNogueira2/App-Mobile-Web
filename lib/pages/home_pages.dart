@@ -1,6 +1,7 @@
 import 'dart:async'; // Adicione este import
 import 'package:flutter/material.dart';
 import 'package:projectflutter/pages/perfil_page.dart';
+import 'package:projectflutter/pages/carteirinha_page.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class PaginaInicial extends StatefulWidget {
@@ -735,7 +736,12 @@ class _PaginaInicialState extends State<PaginaInicial> {
 
   @override
   Widget build(BuildContext context) {
-    final pages = [buildHomePage(), buildAgendaPage(), const PerfilPage()];
+    final pages = [
+      buildHomePage(),
+      buildAgendaPage(),
+      const CarteirinhaPage(), // Adicione aqui
+      const PerfilPage(),
+    ];
 
     return Scaffold(
       backgroundColor: const Color(0xFFF8FAFC),
@@ -779,6 +785,10 @@ class _PaginaInicialState extends State<PaginaInicial> {
             BottomNavigationBarItem(
               icon: Icon(Icons.calendar_today_rounded),
               label: 'Agenda',
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.credit_card_rounded),
+              label: 'Carteirinha',
             ),
             BottomNavigationBarItem(
               icon: Icon(Icons.person_rounded),
