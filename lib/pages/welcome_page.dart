@@ -15,7 +15,7 @@ class _WelcomePageState extends State<WelcomePage>
   late AnimationController _scaleController;
   late AnimationController _slideController;
   late AnimationController _rotateController;
-  
+
   late Animation<double> _fadeAnimation;
   late Animation<double> _scaleAnimation;
   late Animation<Offset> _slideAnimation;
@@ -35,26 +35,18 @@ class _WelcomePageState extends State<WelcomePage>
       duration: const Duration(milliseconds: 1500),
       vsync: this,
     );
-    _fadeAnimation = Tween<double>(
-      begin: 0.0,
-      end: 1.0,
-    ).animate(CurvedAnimation(
-      parent: _fadeController,
-      curve: Curves.easeInOut,
-    ));
+    _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(parent: _fadeController, curve: Curves.easeInOut),
+    );
 
     // Scale animation
     _scaleController = AnimationController(
       duration: const Duration(milliseconds: 2000),
       vsync: this,
     );
-    _scaleAnimation = Tween<double>(
-      begin: 0.8,
-      end: 1.0,
-    ).animate(CurvedAnimation(
-      parent: _scaleController,
-      curve: Curves.elasticOut,
-    ));
+    _scaleAnimation = Tween<double>(begin: 0.8, end: 1.0).animate(
+      CurvedAnimation(parent: _scaleController, curve: Curves.elasticOut),
+    );
 
     // Slide animation
     _slideController = AnimationController(
@@ -64,38 +56,33 @@ class _WelcomePageState extends State<WelcomePage>
     _slideAnimation = Tween<Offset>(
       begin: const Offset(0, 0.5),
       end: Offset.zero,
-    ).animate(CurvedAnimation(
-      parent: _slideController,
-      curve: Curves.easeOutBack,
-    ));
+    ).animate(
+      CurvedAnimation(parent: _slideController, curve: Curves.easeOutBack),
+    );
 
     // Rotate animation for icon
     _rotateController = AnimationController(
       duration: const Duration(milliseconds: 2500),
       vsync: this,
     );
-    _rotateAnimation = Tween<double>(
-      begin: 0.0,
-      end: 1.0,
-    ).animate(CurvedAnimation(
-      parent: _rotateController,
-      curve: Curves.elasticOut,
-    ));
+    _rotateAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(parent: _rotateController, curve: Curves.elasticOut),
+    );
   }
 
   void _startAnimations() {
     Future.delayed(const Duration(milliseconds: 300), () {
       _fadeController.forward();
     });
-    
+
     Future.delayed(const Duration(milliseconds: 500), () {
       _scaleController.forward();
     });
-    
+
     Future.delayed(const Duration(milliseconds: 700), () {
       _slideController.forward();
     });
-    
+
     Future.delayed(const Duration(milliseconds: 900), () {
       _rotateController.forward();
     });
@@ -107,19 +94,26 @@ class _WelcomePageState extends State<WelcomePage>
         Navigator.pushReplacement(
           context,
           PageRouteBuilder(
-            pageBuilder: (context, animation, secondaryAnimation) =>
-                const AuthGate(),
-            transitionsBuilder: (context, animation, secondaryAnimation, child) {
+            pageBuilder:
+                (context, animation, secondaryAnimation) => const AuthGate(),
+            transitionsBuilder: (
+              context,
+              animation,
+              secondaryAnimation,
+              child,
+            ) {
               return FadeTransition(
                 opacity: animation,
                 child: SlideTransition(
                   position: Tween<Offset>(
                     begin: const Offset(1.0, 0.0),
                     end: Offset.zero,
-                  ).animate(CurvedAnimation(
-                    parent: animation,
-                    curve: Curves.easeInOutCubic,
-                  )),
+                  ).animate(
+                    CurvedAnimation(
+                      parent: animation,
+                      curve: Curves.easeInOutCubic,
+                    ),
+                  ),
                   child: child,
                 ),
               );
@@ -149,10 +143,10 @@ class _WelcomePageState extends State<WelcomePage>
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
             colors: [
-              Color(0xFF667eea),
-              Color(0xFF764ba2),
-              Color(0xFF6B73FF),
-              Color(0xFF9A4AE2),
+              Color.fromARGB(255, 51, 255, 24),
+              Color.fromARGB(255, 40, 85, 36),
+              Color.fromARGB(255, 0, 0, 0),
+              Color.fromARGB(255, 160, 236, 73),
             ],
             stops: [0.0, 0.3, 0.7, 1.0],
           ),
@@ -161,7 +155,7 @@ class _WelcomePageState extends State<WelcomePage>
           children: [
             // Floating particles effect
             ...List.generate(20, (index) => _buildFloatingParticle(index)),
-            
+
             // Main content
             Center(
               child: FadeTransition(
@@ -240,10 +234,14 @@ class _WelcomePageState extends State<WelcomePage>
                                               Color(0xFF34A853),
                                             ],
                                           ),
-                                          borderRadius: BorderRadius.circular(12),
+                                          borderRadius: BorderRadius.circular(
+                                            12,
+                                          ),
                                           boxShadow: [
                                             BoxShadow(
-                                              color: const Color(0xFF4285F4).withOpacity(0.3),
+                                              color: const Color(
+                                                0xFF4285F4,
+                                              ).withOpacity(0.3),
                                               blurRadius: 8,
                                               offset: const Offset(0, 4),
                                             ),
@@ -280,9 +278,9 @@ class _WelcomePageState extends State<WelcomePage>
                         ),
                       ),
                     ),
-                    
+
                     const SizedBox(height: 60),
-                    
+
                     // Animated tagline
                     SlideTransition(
                       position: _slideAnimation,
@@ -310,9 +308,9 @@ class _WelcomePageState extends State<WelcomePage>
                         ),
                       ),
                     ),
-                    
+
                     const SizedBox(height: 80),
-                    
+
                     // Lottie animation with enhanced container
                     SlideTransition(
                       position: _slideAnimation,
@@ -341,9 +339,9 @@ class _WelcomePageState extends State<WelcomePage>
                         ),
                       ),
                     ),
-                    
+
                     const SizedBox(height: 40),
-                    
+
                     // Loading indicator
                     SlideTransition(
                       position: _slideAnimation,
@@ -394,7 +392,7 @@ class _WelcomePageState extends State<WelcomePage>
     final size = 4.0 + (random % 8);
     final left = (random * 3.7) % MediaQuery.of(context).size.width;
     final animationDuration = 3000 + (random * 20);
-    
+
     return Positioned(
       left: left,
       top: -50,

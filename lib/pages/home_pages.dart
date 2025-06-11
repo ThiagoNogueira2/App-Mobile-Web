@@ -160,12 +160,18 @@ class _PaginaInicialState extends State<PaginaInicial> {
     return null;
   }
 
-  Future<List<Map<String, dynamic>>> _buscarAgendamentosPorDia(int diaSemana) async {
+  Future<List<Map<String, dynamic>>> _buscarAgendamentosPorDia(
+    int diaSemana,
+  ) async {
     final supabase = Supabase.instance.client;
     final user = supabase.auth.currentUser;
     if (user == null) return [];
     final userData =
-        await supabase.from('users').select('curso_id').eq('id', user.id).maybeSingle();
+        await supabase
+            .from('users')
+            .select('curso_id')
+            .eq('id', user.id)
+            .maybeSingle();
     final cursoId = userData?['curso_id'];
     if (cursoId == null) return [];
 
@@ -214,21 +220,26 @@ class _PaginaInicialState extends State<PaginaInicial> {
             Container(
               width: double.infinity,
               height: 240,
-              margin: const EdgeInsets.only(bottom: 24, left: 16, right: 16, top: 8),
+              margin: const EdgeInsets.only(
+                bottom: 24,
+                left: 16,
+                right: 16,
+                top: 8,
+              ),
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(20),
                 gradient: const LinearGradient(
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                   colors: [
-                    Color(0xFF6366F1),
-                    Color(0xFF8B5CF6),
-                    Color(0xFFA855F7),
+                    Color(0xFF22C55E), // verde vivo
+                    Color(0xFF16A34A), // verde escuro
+                    Color(0xFF4ADE80), // verde claro
                   ],
                 ),
                 boxShadow: [
                   BoxShadow(
-                    color: const Color(0xFF6366F1).withOpacity(0.25),
+                    color: const Color(0xFF22C55E).withOpacity(0.25),
                     blurRadius: 20,
                     offset: const Offset(0, 10),
                   ),
@@ -326,7 +337,9 @@ class _PaginaInicialState extends State<PaginaInicial> {
                   final nomes = ['Seg', 'Ter', 'Qua', 'Qui', 'Sex'];
                   final diasNum = [1, 2, 3, 4, 5];
                   final hoje = DateTime.now();
-                  final data = hoje.subtract(Duration(days: hoje.weekday - 1 - idx));
+                  final data = hoje.subtract(
+                    Duration(days: hoje.weekday - 1 - idx),
+                  );
                   final isSelecionado = idx == _diaSemanaSelecionado;
                   return GestureDetector(
                     onTap: () {
@@ -338,21 +351,30 @@ class _PaginaInicialState extends State<PaginaInicial> {
                       duration: const Duration(milliseconds: 200),
                       curve: Curves.easeInOut,
                       margin: const EdgeInsets.symmetric(horizontal: 4),
-                      padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 0),
+                      padding: const EdgeInsets.symmetric(
+                        vertical: 10,
+                        horizontal: 0,
+                      ),
                       width: 54,
                       decoration: BoxDecoration(
-                        color: isSelecionado ? const Color(0xFF6366F1) : Colors.white,
+                        color:
+                            isSelecionado
+                                ? const Color(0xFF22C55E)
+                                : Colors.white,
                         borderRadius: BorderRadius.circular(16),
                         boxShadow: [
                           if (isSelecionado)
                             BoxShadow(
-                              color: const Color(0xFF6366F1).withOpacity(0.15),
+                              color: const Color(0xFF22C55E).withOpacity(0.15),
                               blurRadius: 10,
                               offset: const Offset(0, 2),
                             ),
                         ],
                         border: Border.all(
-                          color: isSelecionado ? const Color(0xFF6366F1) : const Color(0xFFE5E7EB),
+                          color:
+                              isSelecionado
+                                  ? const Color(0xFF22C55E)
+                                  : const Color(0xFFE5E7EB),
                           width: 1.5,
                         ),
                       ),
@@ -362,7 +384,10 @@ class _PaginaInicialState extends State<PaginaInicial> {
                           Text(
                             nomes[idx],
                             style: TextStyle(
-                              color: isSelecionado ? Colors.white : const Color(0xFF6366F1),
+                              color:
+                                  isSelecionado
+                                      ? Colors.white
+                                      : const Color(0xFF22C55E),
                               fontWeight: FontWeight.bold,
                               fontSize: 15,
                               letterSpacing: 0.2,
@@ -374,13 +399,19 @@ class _PaginaInicialState extends State<PaginaInicial> {
                             height: 28,
                             alignment: Alignment.center,
                             decoration: BoxDecoration(
-                              color: isSelecionado ? Colors.white : const Color(0xFFF1F5F9),
+                              color:
+                                  isSelecionado
+                                      ? Colors.white
+                                      : const Color(0xFFF1F5F9),
                               shape: BoxShape.circle,
                             ),
                             child: Text(
                               data.day.toString().padLeft(2, '0'),
                               style: TextStyle(
-                                color: isSelecionado ? const Color(0xFF6366F1) : const Color(0xFF64748B),
+                                color:
+                                    isSelecionado
+                                        ? const Color(0xFF22C55E)
+                                        : const Color(0xFF64748B),
                                 fontWeight: FontWeight.w700,
                                 fontSize: 15,
                               ),
@@ -394,9 +425,10 @@ class _PaginaInicialState extends State<PaginaInicial> {
               ),
             ),
             Expanded(
-              child: agendamentos.isEmpty
-                  ? const SizedBox.shrink() // Não mostra nada se não houver aula
-                  : _buildAgendaList(agendamentos),
+              child:
+                  agendamentos.isEmpty
+                      ? const SizedBox.shrink() // Não mostra nada se não houver aula
+                      : _buildAgendaList(agendamentos),
             ),
           ],
         );
@@ -417,18 +449,21 @@ class _PaginaInicialState extends State<PaginaInicial> {
         margin: const EdgeInsets.symmetric(horizontal: 2),
         padding: const EdgeInsets.symmetric(vertical: 10),
         decoration: BoxDecoration(
-          color: isSelecionado ? const Color(0xFF6366F1) : Colors.white,
+          color: isSelecionado ? const Color(0xFF22C55E) : Colors.white,
           borderRadius: BorderRadius.circular(12),
           boxShadow: [
             if (isSelecionado)
               BoxShadow(
-                color: const Color(0xFF6366F1).withOpacity(0.15),
+                color: const Color(0xFF22C55E).withOpacity(0.15),
                 blurRadius: 8,
                 offset: const Offset(0, 2),
               ),
           ],
           border: Border.all(
-            color: isSelecionado ? const Color(0xFF6366F1) : const Color(0xFFE5E7EB),
+            color:
+                isSelecionado
+                    ? const Color(0xFF22C55E)
+                    : const Color(0xFFE5E7EB),
             width: 1.5,
           ),
         ),
@@ -437,7 +472,7 @@ class _PaginaInicialState extends State<PaginaInicial> {
             Text(
               letra,
               style: TextStyle(
-                color: isSelecionado ? Colors.white : const Color(0xFF6366F1),
+                color: isSelecionado ? Colors.white : const Color(0xFF22C55E),
                 fontWeight: FontWeight.bold,
                 fontSize: 16,
               ),
@@ -539,7 +574,7 @@ class _PaginaInicialState extends State<PaginaInicial> {
                       padding: const EdgeInsets.all(12),
                       decoration: BoxDecoration(
                         gradient: const LinearGradient(
-                          colors: [Color(0xFF6366F1), Color(0xFF8B5CF6)],
+                          colors: [Color(0xFF22C55E), Color(0xFF16A34A)],
                         ),
                         borderRadius: BorderRadius.circular(12),
                       ),
@@ -565,13 +600,17 @@ class _PaginaInicialState extends State<PaginaInicial> {
                 const SizedBox(height: 12),
                 Row(
                   children: [
-                    Icon(Icons.person_rounded, color: Color(0xFF6366F1), size: 18),
+                    Icon(
+                      Icons.person_rounded,
+                      color: Color(0xFF22C55E),
+                      size: 18,
+                    ),
                     const SizedBox(width: 6),
                     Text(
                       professor,
                       style: const TextStyle(
                         fontSize: 15,
-                        color: Color(0xFF6366F1),
+                        color: Color(0xFF22C55E),
                         fontWeight: FontWeight.w600,
                       ),
                     ),
@@ -651,7 +690,12 @@ class _PaginaInicialState extends State<PaginaInicial> {
     );
   }
 
-  Widget _buildInfoItem(IconData icon, String label, String value, Color color) {
+  Widget _buildInfoItem(
+    IconData icon,
+    String label,
+    String value,
+    Color color,
+  ) {
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
@@ -695,13 +739,14 @@ class _PaginaInicialState extends State<PaginaInicial> {
 
     return Scaffold(
       backgroundColor: const Color(0xFFF8FAFC),
-      body: _nomeUsuario == 'Carregando...'
-          ? const Center(
-              child: CircularProgressIndicator(
-                valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF6366F1)),
-              ),
-            )
-          : pages[_indiceAtual],
+      body:
+          _nomeUsuario == 'Carregando...'
+              ? const Center(
+                child: CircularProgressIndicator(
+                  valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF6366F1)),
+                ),
+              )
+              : pages[_indiceAtual],
       bottomNavigationBar: Container(
         decoration: BoxDecoration(
           color: Colors.white,
@@ -722,7 +767,7 @@ class _PaginaInicialState extends State<PaginaInicial> {
           },
           backgroundColor: Colors.transparent,
           elevation: 0,
-          selectedItemColor: const Color(0xFF6366F1),
+          selectedItemColor: const Color(0xFF22C55E),
           unselectedItemColor: Colors.grey[400],
           selectedLabelStyle: const TextStyle(fontWeight: FontWeight.w600),
           type: BottomNavigationBarType.fixed,
@@ -748,19 +793,22 @@ class _PaginaInicialState extends State<PaginaInicial> {
   Widget buildHomePage() {
     final noticias = [
       {
-        'img': 'https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=800&q=80',
+        'img':
+            'https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=800&q=80',
         'title': 'Semana Acadêmica',
-        'desc': 'Participe das palestras e workshops de 12 a 16 de junho!'
+        'desc': 'Participe das palestras e workshops de 12 a 16 de junho!',
       },
       {
-        'img': 'https://images.unsplash.com/photo-1464983953574-0892a716854b?auto=format&fit=crop&w=800&q=80',
+        'img':
+            'https://images.unsplash.com/photo-1464983953574-0892a716854b?auto=format&fit=crop&w=800&q=80',
         'title': 'Novo Restaurante Universitário',
-        'desc': 'Inauguração nesta sexta-feira, às 11h.'
+        'desc': 'Inauguração nesta sexta-feira, às 11h.',
       },
       {
-        'img': 'https://images.unsplash.com/photo-1513258496099-48168024aec0?auto=format&fit=crop&w=800&q=80',
+        'img':
+            'https://images.unsplash.com/photo-1513258496099-48168024aec0?auto=format&fit=crop&w=800&q=80',
         'title': 'Edital de Bolsas',
-        'desc': 'Inscrições abertas até 20/06 para bolsas de pesquisa.'
+        'desc': 'Inscrições abertas até 20/06 para bolsas de pesquisa.',
       },
     ];
 
@@ -780,9 +828,9 @@ class _PaginaInicialState extends State<PaginaInicial> {
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
                 colors: [
-                  Color(0xFF6366F1),
-                  Color(0xFF8B5CF6),
-                  Color(0xFFA855F7),
+                  Color(0xFF22C55E), // verde vivo
+                  Color(0xFF16A34A), // verde escuro
+                  Color(0xFF4ADE80), // verde claro
                 ],
               ),
             ),
@@ -953,7 +1001,7 @@ class _PaginaInicialState extends State<PaginaInicial> {
                   child: _buildQuickAccessButton(
                     Icons.calendar_today_rounded,
                     'Próximas\nAulas',
-                    const Color(0xFF6366F1),
+                    const Color(0xFF22C55E), // verde vivo
                     () {
                       setState(() {
                         _indiceAtual = 1;
@@ -1016,10 +1064,7 @@ class _PaginaInicialState extends State<PaginaInicial> {
                     child: Stack(
                       fit: StackFit.expand,
                       children: [
-                        Image.network(
-                          noticia['img']!,
-                          fit: BoxFit.cover,
-                        ),
+                        Image.network(noticia['img']!, fit: BoxFit.cover),
                         Container(
                           decoration: BoxDecoration(
                             borderRadius: BorderRadius.circular(18),
@@ -1044,10 +1089,7 @@ class _PaginaInicialState extends State<PaginaInicial> {
                               fontSize: 18,
                               fontWeight: FontWeight.bold,
                               shadows: [
-                                Shadow(
-                                  color: Colors.black54,
-                                  blurRadius: 8,
-                                ),
+                                Shadow(color: Colors.black54, blurRadius: 8),
                               ],
                             ),
                           ),
@@ -1111,7 +1153,7 @@ class _PaginaInicialState extends State<PaginaInicial> {
                   'Sistema de Salas Atualizado',
                   'Novas funcionalidades de localização disponíveis.',
                   Icons.system_update_rounded,
-                  const Color(0xFF6366F1),
+                  const Color(0xFF22C55E),
                 ),
                 _buildAvisoCard(
                   'Manutenção Programada',
@@ -1161,10 +1203,7 @@ class _PaginaInicialState extends State<PaginaInicial> {
                   padding: const EdgeInsets.all(16),
                   decoration: BoxDecoration(
                     gradient: LinearGradient(
-                      colors: [
-                        color,
-                        color.withOpacity(0.8),
-                      ],
+                      colors: [color, color.withOpacity(0.8)],
                     ),
                     borderRadius: BorderRadius.circular(16),
                   ),
@@ -1211,7 +1250,7 @@ class _PaginaInicialState extends State<PaginaInicial> {
               ),
               child: const Center(
                 child: CircularProgressIndicator(
-                  valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF6366F1)),
+                  valueColor: AlwaysStoppedAnimation<Color>(Color(0xFF22C55E)),
                 ),
               ),
             ),
@@ -1228,10 +1267,7 @@ class _PaginaInicialState extends State<PaginaInicial> {
                 gradient: LinearGradient(
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
-                  colors: [
-                    Colors.green[100]!,
-                    Colors.teal[50]!,
-                  ],
+                  colors: [Colors.green[100]!, Colors.teal[50]!],
                 ),
                 borderRadius: BorderRadius.circular(24),
                 boxShadow: [
@@ -1301,15 +1337,12 @@ class _PaginaInicialState extends State<PaginaInicial> {
               gradient: LinearGradient(
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
-                colors: [
-                  Colors.blue[50]!,
-                  Colors.purple[50]!,
-                ],
+                colors: [Color(0xFFBBF7D0), Color(0xFFDCFCE7)],
               ),
               borderRadius: BorderRadius.circular(24),
               boxShadow: [
                 BoxShadow(
-                  color: Colors.blue.withOpacity(0.08),
+                  color: Color(0xFF22C55E).withOpacity(0.08),
                   blurRadius: 20,
                   offset: const Offset(0, 8),
                 ),
@@ -1325,7 +1358,7 @@ class _PaginaInicialState extends State<PaginaInicial> {
                   ),
                   child: const Icon(
                     Icons.school_rounded,
-                    color: Color(0xFF6366F1),
+                    color: Color(0xFF22C55E),
                     size: 40,
                   ),
                 ),
@@ -1408,11 +1441,7 @@ class _PaginaInicialState extends State<PaginaInicial> {
               color: color.withOpacity(0.1),
               borderRadius: BorderRadius.circular(12),
             ),
-            child: Icon(
-              icon,
-              color: color,
-              size: 28,
-            ),
+            child: Icon(icon, color: color, size: 28),
           ),
           const SizedBox(width: 16),
           Expanded(
@@ -1442,11 +1471,7 @@ class _PaginaInicialState extends State<PaginaInicial> {
           const SizedBox(width: 16),
           IconButton(
             onPressed: () {},
-            icon: Icon(
-              Icons.arrow_forward_ios_rounded,
-              color: color,
-              size: 16,
-            ),
+            icon: Icon(Icons.arrow_forward_ios_rounded, color: color, size: 16),
           ),
         ],
       ),
