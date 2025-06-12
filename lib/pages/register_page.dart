@@ -151,7 +151,7 @@ class _RegisterPageState extends State<RegisterPage> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const SizedBox(height: 30),
+                    const SizedBox(height: 80),
                     Center(
                       child: RichText(
                         text: const TextSpan(
@@ -175,7 +175,7 @@ class _RegisterPageState extends State<RegisterPage> {
                             WidgetSpan(
                               child: Icon(
                                 Icons.location_on,
-                                color: Colors.green,
+                                color: Color(0xFF1D4ED8),
                                 size: 42,
                               ),
                             ),
@@ -212,7 +212,7 @@ class _RegisterPageState extends State<RegisterPage> {
                               text: "up",
                               style: TextStyle(
                                 fontSize: 40,
-                                color: Colors.green,
+                                color: Color(0xFF1D4ED8),
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
@@ -341,7 +341,7 @@ class _RegisterPageState extends State<RegisterPage> {
                           onPressed: signUp,
                           style: OutlinedButton.styleFrom(
                             foregroundColor: Colors.white,
-                            backgroundColor: Colors.green,
+                            backgroundColor: Color(0xFF1D4ED8),
                             side: const BorderSide(color: Colors.green),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(30),

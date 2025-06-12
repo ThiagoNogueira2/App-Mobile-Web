@@ -84,11 +84,11 @@ class _LoginPageState extends State<LoginPage> {
       ),
       body: Stack(
         children: [
-          // 🔁 Troca o Container com DecorationImage por SVG
+          // Troque o SVG pelo JPG
           SizedBox.expand(
-            child: SvgPicture.asset(
-              'assets/images/imglogin.svg',
-              fit: BoxFit.fill,
+            child: Image.asset(
+              'assets/images/faculdade.jpeg', // coloque o caminho do seu JPG aqui
+              fit: BoxFit.cover,
             ),
           ),
           Container(color: Colors.black.withOpacity(0.4)),
@@ -124,7 +124,7 @@ class _LoginPageState extends State<LoginPage> {
                           WidgetSpan(
                             child: Icon(
                               Icons.location_on,
-                              color: Color(0xFF4CAF50),
+                              color: Color(0xFF1D4ED8),
                               size: 42,
                             ),
                           ),
@@ -162,7 +162,7 @@ class _LoginPageState extends State<LoginPage> {
                               text: "in",
                               style: TextStyle(
                                 fontSize: 40,
-                                color: Colors.green,
+                                color: Color(0xFF1D4ED8),
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
@@ -253,7 +253,7 @@ class _LoginPageState extends State<LoginPage> {
                         },
                         style: OutlinedButton.styleFrom(
                           foregroundColor: Colors.white,
-                          backgroundColor: Colors.green,
+                          backgroundColor: Color(0xFF1D4ED8),
                           side: const BorderSide(color: Colors.green),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(30),

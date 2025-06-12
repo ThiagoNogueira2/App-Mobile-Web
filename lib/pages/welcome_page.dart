@@ -143,12 +143,10 @@ class _WelcomePageState extends State<WelcomePage>
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
             colors: [
-              Color.fromARGB(255, 51, 255, 24),
-              Color.fromARGB(255, 40, 85, 36),
-              Color.fromARGB(255, 0, 0, 0),
-              Color.fromARGB(255, 160, 236, 73),
+              Color(0xFF2563EB), // azul vivo
+              Color.fromARGB(255, 22, 78, 146), // azul claro
             ],
-            stops: [0.0, 0.3, 0.7, 1.0],
+            stops: [0.0, 1.0], // Corrigido: 2 cores, 2 stops
           ),
         ),
         child: Stack(

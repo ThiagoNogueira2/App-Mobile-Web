@@ -144,9 +144,9 @@ class _PerfilPageState extends State<PerfilPage> {
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
                     colors: [
-                      Color(0xFF22C55E), // verde vivo
-                      Color(0xFF16A34A), // verde escuro
-                      Color(0xFF4ADE80), // verde claro
+                      Color(0xFF2563EB), // azul vivo
+                      Color(0xFF1D4ED8), // azul escuro
+                      Color(0xFF60A5FA), // azul claro
                     ],
                   ),
                 ),
@@ -267,7 +267,7 @@ class _PerfilPageState extends State<PerfilPage> {
                       child: const Center(
                         child: CircularProgressIndicator(
                           valueColor: AlwaysStoppedAnimation<Color>(
-                            Color(0xFF22C55E),
+                            Color(0xFF2563EB), // azul vivo
                           ),
                           strokeWidth: 3,
                         ),
@@ -394,7 +394,7 @@ class _PerfilPageState extends State<PerfilPage> {
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
                 gradient: const LinearGradient(
-                  colors: [Color(0xFF22C55E), Color(0xFF16A34A)],
+                  colors: [Color(0xFF2563EB), Color(0xFF60A5FA)],
                 ),
                 borderRadius: BorderRadius.circular(12),
               ),
@@ -427,7 +427,7 @@ class _PerfilPageState extends State<PerfilPage> {
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
                 gradient: const LinearGradient(
-                  colors: [Color(0xFF16A34A), Color(0xFF4ADE80)],
+                  colors: [Color(0xFF1D4ED8), Color(0xFF60A5FA)],
                 ),
                 borderRadius: BorderRadius.circular(12),
               ),
@@ -480,7 +480,7 @@ class _PerfilPageState extends State<PerfilPage> {
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
                   gradient: const LinearGradient(
-                    colors: [Color(0xFF22C55E), Color(0xFF16A34A)],
+                    colors: [Color(0xFF2563EB), Color(0xFF60A5FA)],
                   ),
                   borderRadius: BorderRadius.circular(12),
                 ),
@@ -569,7 +569,7 @@ class _PerfilPageState extends State<PerfilPage> {
                 child: Container(
                   decoration: BoxDecoration(
                     gradient: const LinearGradient(
-                      colors: [Color(0xFF22C55E), Color(0xFF16A34A)],
+                      colors: [Color(0xFF2563EB), Color(0xFF60A5FA)],
                     ),
                     borderRadius: BorderRadius.circular(12),
                   ),
@@ -622,13 +622,13 @@ class _PerfilPageState extends State<PerfilPage> {
             decoration: BoxDecoration(
               gradient: LinearGradient(
                 colors: [
-                  const Color(0xFF22C55E).withOpacity(0.1),
-                  const Color(0xFF16A34A).withOpacity(0.1),
+                  const Color(0xFF2563EB).withOpacity(0.1),
+                  const Color(0xFF60A5FA).withOpacity(0.1),
                 ],
               ),
               borderRadius: BorderRadius.circular(10),
             ),
-            child: Icon(icon, color: const Color(0xFF22C55E), size: 20),
+            child: Icon(icon, color: const Color(0xFF2563EB), size: 20),
           ),
           const SizedBox(width: 16),
           Expanded(
@@ -702,17 +702,16 @@ class _PerfilPageState extends State<PerfilPage> {
             margin: const EdgeInsets.all(12),
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
-              gradient:
-                  readOnly
-                      ? LinearGradient(
-                        colors: [
-                          const Color(0xFF94A3B8).withOpacity(0.1),
-                          const Color(0xFF94A3B8).withOpacity(0.1),
-                        ],
-                      )
-                      : const LinearGradient(
-                        colors: [Color(0xFF22C55E), Color(0xFF16A34A)],
-                      ),
+              gradient: readOnly
+                  ? LinearGradient(
+                      colors: [
+                        const Color(0xFF94A3B8).withOpacity(0.1),
+                        const Color(0xFF94A3B8).withOpacity(0.1),
+                      ],
+                    )
+                  : const LinearGradient(
+                      colors: [Color(0xFF2563EB), Color(0xFF60A5FA)],
+                    ),
               borderRadius: BorderRadius.circular(8),
             ),
             child: Icon(
@@ -727,20 +726,18 @@ class _PerfilPageState extends State<PerfilPage> {
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(12),
             borderSide: BorderSide(
-              color:
-                  readOnly ? const Color(0xFFBBF7D0) : const Color(0xFFDCFCE7),
+              color: readOnly ? const Color(0xFFD1E9FF) : const Color(0xFFD1E9FF),
             ),
           ),
           enabledBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(12),
             borderSide: BorderSide(
-              color:
-                  readOnly ? const Color(0xFFBBF7D0) : const Color(0xFFDCFCE7),
+              color: readOnly ? const Color(0xFFD1E9FF) : const Color(0xFFD1E9FF),
             ),
           ),
           focusedBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(12),
-            borderSide: const BorderSide(color: Color(0xFF22C55E), width: 2),
+            borderSide: const BorderSide(color: Color(0xFF2563EB), width: 2),
           ),
           errorBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(12),

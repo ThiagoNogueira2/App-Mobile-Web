@@ -1,7 +1,6 @@
 import 'dart:async'; // Adicione este import
 import 'package:flutter/material.dart';
 import 'package:projectflutter/pages/perfil_page.dart';
-import 'package:projectflutter/pages/carteirinha_page.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class PaginaInicial extends StatefulWidget {
@@ -233,14 +232,14 @@ class _PaginaInicialState extends State<PaginaInicial> {
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
                   colors: [
-                    Color(0xFF22C55E), // verde vivo
-                    Color(0xFF16A34A), // verde escuro
-                    Color(0xFF4ADE80), // verde claro
+                    Color(0xFF2563EB), // azul vivo
+                    Color(0xFF1D4ED8), // azul escuro
+                    Color(0xFF60A5FA), // azul claro
                   ],
                 ),
                 boxShadow: [
                   BoxShadow(
-                    color: const Color(0xFF22C55E).withOpacity(0.25),
+                    color: const Color(0xFF2563EB).withOpacity(0.18), // azul vivo
                     blurRadius: 20,
                     offset: const Offset(0, 10),
                   ),
@@ -358,24 +357,22 @@ class _PaginaInicialState extends State<PaginaInicial> {
                       ),
                       width: 54,
                       decoration: BoxDecoration(
-                        color:
-                            isSelecionado
-                                ? const Color(0xFF22C55E)
-                                : Colors.white,
+                        color: isSelecionado
+                            ? const Color(0xFF2563EB) // azul vivo
+                            : Colors.white,
                         borderRadius: BorderRadius.circular(16),
                         boxShadow: [
                           if (isSelecionado)
                             BoxShadow(
-                              color: const Color(0xFF22C55E).withOpacity(0.15),
+                              color: const Color(0xFF2563EB).withOpacity(0.15),
                               blurRadius: 10,
                               offset: const Offset(0, 2),
                             ),
                         ],
                         border: Border.all(
-                          color:
-                              isSelecionado
-                                  ? const Color(0xFF22C55E)
-                                  : const Color(0xFFE5E7EB),
+                          color: isSelecionado
+                              ? const Color(0xFF2563EB)
+                              : const Color(0xFFE5E7EB),
                           width: 1.5,
                         ),
                       ),
@@ -385,10 +382,9 @@ class _PaginaInicialState extends State<PaginaInicial> {
                           Text(
                             nomes[idx],
                             style: TextStyle(
-                              color:
-                                  isSelecionado
-                                      ? Colors.white
-                                      : const Color(0xFF22C55E),
+                              color: isSelecionado
+                                  ? Colors.white
+                                  : const Color(0xFF2563EB), // azul vivo
                               fontWeight: FontWeight.bold,
                               fontSize: 15,
                               letterSpacing: 0.2,
@@ -400,19 +396,17 @@ class _PaginaInicialState extends State<PaginaInicial> {
                             height: 28,
                             alignment: Alignment.center,
                             decoration: BoxDecoration(
-                              color:
-                                  isSelecionado
-                                      ? Colors.white
-                                      : const Color(0xFFF1F5F9),
+                              color: isSelecionado
+                                  ? Colors.white
+                                  : const Color(0xFFF1F5F9),
                               shape: BoxShape.circle,
                             ),
                             child: Text(
                               data.day.toString().padLeft(2, '0'),
                               style: TextStyle(
-                                color:
-                                    isSelecionado
-                                        ? const Color(0xFF22C55E)
-                                        : const Color(0xFF64748B),
+                                color: isSelecionado
+                                    ? const Color(0xFF2563EB)
+                                    : const Color(0xFF64748B),
                                 fontWeight: FontWeight.w700,
                                 fontSize: 15,
                               ),
@@ -420,9 +414,9 @@ class _PaginaInicialState extends State<PaginaInicial> {
                           ),
                         ],
                       ),
-                    ),
-                  );
-                }),
+                    )
+                     );
+                  }),
               ),
             ),
             Expanded(
@@ -450,21 +444,20 @@ class _PaginaInicialState extends State<PaginaInicial> {
         margin: const EdgeInsets.symmetric(horizontal: 2),
         padding: const EdgeInsets.symmetric(vertical: 10),
         decoration: BoxDecoration(
-          color: isSelecionado ? const Color(0xFF22C55E) : Colors.white,
+          color: isSelecionado ? const Color(0xFF2563EB) : Colors.white,
           borderRadius: BorderRadius.circular(12),
           boxShadow: [
             if (isSelecionado)
               BoxShadow(
-                color: const Color(0xFF22C55E).withOpacity(0.15),
+                color: const Color(0xFF2563EB).withOpacity(0.15),
                 blurRadius: 8,
                 offset: const Offset(0, 2),
               ),
           ],
           border: Border.all(
-            color:
-                isSelecionado
-                    ? const Color(0xFF22C55E)
-                    : const Color(0xFFE5E7EB),
+            color: isSelecionado
+                ? const Color(0xFF2563EB)
+                : const Color(0xFFE5E7EB),
             width: 1.5,
           ),
         ),
@@ -473,7 +466,7 @@ class _PaginaInicialState extends State<PaginaInicial> {
             Text(
               letra,
               style: TextStyle(
-                color: isSelecionado ? Colors.white : const Color(0xFF22C55E),
+                color: isSelecionado ? Colors.white : const Color(0xFF2563EB),
                 fontWeight: FontWeight.bold,
                 fontSize: 16,
               ),
@@ -556,6 +549,11 @@ class _PaginaInicialState extends State<PaginaInicial> {
           decoration: BoxDecoration(
             color: Colors.white,
             borderRadius: BorderRadius.circular(20),
+            // Adicione a borda circular azul clara
+            border: Border.all(
+              color: const Color(0xFF60A5FA), // azul claro
+              width: 2.5,
+            ),
             boxShadow: [
               BoxShadow(
                 color: Colors.black.withOpacity(0.04),
@@ -571,19 +569,34 @@ class _PaginaInicialState extends State<PaginaInicial> {
               children: [
                 Row(
                   children: [
-                    Container(
-                      padding: const EdgeInsets.all(12),
-                      decoration: BoxDecoration(
-                        gradient: const LinearGradient(
-                          colors: [Color(0xFF22C55E), Color(0xFF16A34A)],
+                    Stack(
+                      alignment: Alignment.center,
+                      children: [
+                        // Círculo decorativo azul claro atrás do ícone
+                        Container(
+                          width: 44,
+                          height: 44,
+                          decoration: BoxDecoration(
+                            color: const Color(0xFFE0ECFF), // azul bem claro
+                            shape: BoxShape.circle,
+                          ),
                         ),
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: const Icon(
-                        Icons.school_rounded,
-                        color: Colors.white,
-                        size: 20,
-                      ),
+                        // Ícone com gradiente azul
+                        Container(
+                          padding: const EdgeInsets.all(12),
+                          decoration: BoxDecoration(
+                            gradient: const LinearGradient(
+                              colors: [Color(0xFF2563EB), Color(0xFF60A5FA)],
+                            ),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: const Icon(
+                            Icons.school_rounded,
+                            color: Colors.white,
+                            size: 20,
+                          ),
+                        ),
+                      ],
                     ),
                     const SizedBox(width: 16),
                     Expanded(
@@ -603,7 +616,7 @@ class _PaginaInicialState extends State<PaginaInicial> {
                   children: [
                     Icon(
                       Icons.person_rounded,
-                      color: Color(0xFF22C55E),
+                      color: Color(0xFF2563EB),
                       size: 18,
                     ),
                     const SizedBox(width: 6),
@@ -611,7 +624,7 @@ class _PaginaInicialState extends State<PaginaInicial> {
                       professor,
                       style: const TextStyle(
                         fontSize: 15,
-                        color: Color(0xFF22C55E),
+                        color: Color(0xFF2563EB),
                         fontWeight: FontWeight.w600,
                       ),
                     ),
@@ -625,7 +638,7 @@ class _PaginaInicialState extends State<PaginaInicial> {
                         Icons.access_time_rounded,
                         'Início',
                         ag['hora_inicio'] ?? '-',
-                        const Color(0xFF10B981),
+                        const Color(0xFF2563EB), // azul vivo
                       ),
                     ),
                     const SizedBox(width: 12),
@@ -634,7 +647,7 @@ class _PaginaInicialState extends State<PaginaInicial> {
                         Icons.schedule_rounded,
                         'Fim',
                         ag['hora_fim'] ?? '-',
-                        const Color(0xFFF59E0B),
+                        const Color(0xFF60A5FA), // azul claro
                       ),
                     ),
                   ],
@@ -647,7 +660,7 @@ class _PaginaInicialState extends State<PaginaInicial> {
                         Icons.meeting_room_rounded,
                         'Sala',
                         sala,
-                        const Color(0xFF8B5CF6),
+                        const Color(0xFF6366F1), // azul roxo
                       ),
                     ),
                     const SizedBox(width: 12),
@@ -656,7 +669,7 @@ class _PaginaInicialState extends State<PaginaInicial> {
                         Icons.book_rounded,
                         'Curso',
                         curso,
-                        const Color(0xFF6366F1),
+                        const Color(0xFF1D4ED8), // azul escuro
                       ),
                     ),
                   ],
@@ -739,7 +752,6 @@ class _PaginaInicialState extends State<PaginaInicial> {
     final pages = [
       buildHomePage(),
       buildAgendaPage(),
-      const CarteirinhaPage(), // Adicione aqui
       const PerfilPage(),
     ];
 
@@ -773,7 +785,7 @@ class _PaginaInicialState extends State<PaginaInicial> {
           },
           backgroundColor: Colors.transparent,
           elevation: 0,
-          selectedItemColor: const Color(0xFF22C55E),
+          selectedItemColor: const Color(0xFF2563EB), // azul vivo
           unselectedItemColor: Colors.grey[400],
           selectedLabelStyle: const TextStyle(fontWeight: FontWeight.w600),
           type: BottomNavigationBarType.fixed,
@@ -785,10 +797,6 @@ class _PaginaInicialState extends State<PaginaInicial> {
             BottomNavigationBarItem(
               icon: Icon(Icons.calendar_today_rounded),
               label: 'Agenda',
-            ),
-            BottomNavigationBarItem(
-              icon: Icon(Icons.credit_card_rounded),
-              label: 'Carteirinha',
             ),
             BottomNavigationBarItem(
               icon: Icon(Icons.person_rounded),
@@ -804,19 +812,19 @@ class _PaginaInicialState extends State<PaginaInicial> {
     final noticias = [
       {
         'img':
-            'https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=800&q=80',
+            'assets/images/semanacademica.jfif',
         'title': 'Semana Acadêmica',
         'desc': 'Participe das palestras e workshops de 12 a 16 de junho!',
       },
       {
         'img':
-            'https://images.unsplash.com/photo-1464983953574-0892a716854b?auto=format&fit=crop&w=800&q=80',
+            'assets/images/cantina.jfif',
         'title': 'Novo Restaurante Universitário',
         'desc': 'Inauguração nesta sexta-feira, às 11h.',
       },
       {
         'img':
-            'https://images.unsplash.com/photo-1513258496099-48168024aec0?auto=format&fit=crop&w=800&q=80',
+            'assets/images/edital.jfif',
         'title': 'Edital de Bolsas',
         'desc': 'Inscrições abertas até 20/06 para bolsas de pesquisa.',
       },
@@ -838,9 +846,9 @@ class _PaginaInicialState extends State<PaginaInicial> {
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
                 colors: [
-                  Color(0xFF22C55E), // verde vivo
-                  Color(0xFF16A34A), // verde escuro
-                  Color(0xFF4ADE80), // verde claro
+                  Color(0xFF2563EB), // azul vivo
+                  Color(0xFF1D4ED8), // azul escuro
+                  Color(0xFF60A5FA), // azul claro
                 ],
               ),
             ),
@@ -1011,7 +1019,7 @@ class _PaginaInicialState extends State<PaginaInicial> {
                   child: _buildQuickAccessButton(
                     Icons.calendar_today_rounded,
                     'Próximas\nAulas',
-                    const Color(0xFF22C55E), // verde vivo
+                    const Color(0xFF2563EB), // azul vivo
                     () {
                       setState(() {
                         _indiceAtual = 1;
@@ -1163,7 +1171,7 @@ class _PaginaInicialState extends State<PaginaInicial> {
                   'Sistema de Salas Atualizado',
                   'Novas funcionalidades de localização disponíveis.',
                   Icons.system_update_rounded,
-                  const Color(0xFF22C55E),
+                  const Color(0xFF2563EB),
                 ),
                 _buildAvisoCard(
                   'Manutenção Programada',
@@ -1234,8 +1242,8 @@ class _PaginaInicialState extends State<PaginaInicial> {
             ),
           ),
         ),
-      ),
-    );
+      )
+       );
   }
 
   Widget _buildProximaAulaCard() {
@@ -1277,12 +1285,12 @@ class _PaginaInicialState extends State<PaginaInicial> {
                 gradient: LinearGradient(
                   begin: Alignment.topLeft,
                   end: Alignment.bottomRight,
-                  colors: [Colors.green[100]!, Colors.teal[50]!],
+                  colors: [Colors.blue[100]!, Colors.blue[50]!],
                 ),
                 borderRadius: BorderRadius.circular(24),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.green.withOpacity(0.1),
+                    color: Colors.blue.withOpacity(0.1),
                     blurRadius: 20,
                     offset: const Offset(0, 8),
                   ),
@@ -1298,7 +1306,7 @@ class _PaginaInicialState extends State<PaginaInicial> {
                     ),
                     child: Icon(
                       Icons.event_available_rounded,
-                      color: Colors.green[600],
+                      color: Colors.blue[600],
                       size: 40,
                     ),
                   ),
@@ -1310,7 +1318,7 @@ class _PaginaInicialState extends State<PaginaInicial> {
                         Text(
                           'Sem aulas hoje! 🎉',
                           style: TextStyle(
-                            color: Colors.green[800],
+                            color: Colors.blue[800],
                             fontSize: 20,
                             fontWeight: FontWeight.w700,
                           ),
@@ -1319,7 +1327,7 @@ class _PaginaInicialState extends State<PaginaInicial> {
                         Text(
                           'Aproveite para descansar ou estudar em casa.',
                           style: TextStyle(
-                            color: Colors.green[600],
+                            color: Colors.blue[600],
                             fontSize: 16,
                             fontWeight: FontWeight.w500,
                           ),
@@ -1344,15 +1352,15 @@ class _PaginaInicialState extends State<PaginaInicial> {
           child: Container(
             padding: const EdgeInsets.all(24),
             decoration: BoxDecoration(
-              gradient: LinearGradient(
+              gradient: const LinearGradient(
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
-                colors: [Color(0xFFBBF7D0), Color(0xFFDCFCE7)],
+                colors: [Color(0xFFDBEAFE), Color(0xFF60A5FA)],
               ),
               borderRadius: BorderRadius.circular(24),
               boxShadow: [
                 BoxShadow(
-                  color: Color(0xFF22C55E).withOpacity(0.08),
+                  color: const Color(0xFF2563EB).withOpacity(0.08),
                   blurRadius: 20,
                   offset: const Offset(0, 8),
                 ),
@@ -1368,7 +1376,7 @@ class _PaginaInicialState extends State<PaginaInicial> {
                   ),
                   child: const Icon(
                     Icons.school_rounded,
-                    color: Color(0xFF22C55E),
+                    color: Color(0xFF2563EB),
                     size: 40,
                   ),
                 ),
