@@ -1,9 +1,7 @@
 name: projectflutter
 description: "A new Flutter project."
 
-# A linha abaixo impede que o pacote seja publicado acidentalmente no pub.dev
-# usando `flutter pub publish`. Isso é preferido para pacotes privados.
-publish_to: 'none' # Remova esta linha se quiser publicar no pub.dev
+publish_to: 'none'
 
 version: 1.0.0+1
 
@@ -13,9 +11,13 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  supabase_flutter: ^0.3.0  # Atualização para a versão mais recente (verifique se há uma versão mais recente em pub.dev)
-  postgres: ^2.5.0   # Pacote para PostgreSQL
+  lottie: ^2.7.0  # ou a última versão disponível
+  supabase_flutter: ^2.8.4
   cupertino_icons: ^1.0.8
+  flutter_svg: ^2.0.7 # ou a versão mais recente
+  image_picker: ^0.8.7+3
+  carousel_slider: ^4.2.1
+
 
 dev_dependencies:
   flutter_test:
@@ -25,3 +27,6 @@ dev_dependencies:
 flutter:
   uses-material-design: true
 
+  assets:
+    - assets/images/
+    - assets/animation/
