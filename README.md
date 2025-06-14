@@ -12,22 +12,22 @@
 ## 🖼️ Telas do Projeto
 
 ### 👋 Tela Welcome
-![Tela Welcome](assets/telawelcome.png)
+![Tela Welcome](assets/images/telawelcome.png)
 
 ### 🔑 Tela de Login
-![Tela de Login](assets/teladeLogin.png)
+![Tela de Login](assets/images/teladeLogin.png)
 
 ### 📝 Tela de Registro
-![Tela de Registro](assets/telaRegistro.png)
+![Tela de Registro](assets/images/telaRegistro.png)
 
 ### 🏠 Tela Inicial
-![Tela Inicial](assets/TelaInicio.png)
+![Tela Inicial](assets/images/TelaInicio.png)
 
 ### 🔍 Tela Buscar Sala
-![Buscar Sala](assets/BuscarSala.png)
+![Buscar Sala](assets/images/BuscarSala.png)
 
 ### 👤 Tela Perfil
-![Tela Perfil](assets/Perfil.png)
+![Tela Perfil](assets/images/Perfil.png)
 
 ---
 
