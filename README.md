@@ -1,16 +1,33 @@
-# projectflutter
+# 📱 Project Flutter
 
-A new Flutter project.
+Uma aplicação Flutter com diversas telas já implementadas.
 
-## Getting Started
+## 🏗️ Sobre o Projeto
 
-This project is a starting point for a Flutter application.
+Este projeto é um app Flutter com funcionalidades de autenticação, navegação entre telas e gerenciamento de perfil de usuário.
 
-A few resources to get you started if this is your first Flutter project:
+---
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+## 🖼️ Telas do Projeto
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+### 👋 Tela Welcome
+![Tela Welcome](assets/telawelcome.png)
+
+### 🔑 Tela de Login
+![Tela de Login](assets/teladeLogin.png)
+
+### 📝 Tela de Registro
+![Tela de Registro](assets/telaRegistro.png)
+
+### 🏠 Tela Inicial
+![Tela Inicial](assets/TelaInicio.png)
+
+### 🔍 Tela Buscar Sala
+![Buscar Sala](assets/BuscarSala.png)
+
+### 👤 Tela Perfil
+![Tela Perfil](assets/Perfil.png)
+
+---
+
+
