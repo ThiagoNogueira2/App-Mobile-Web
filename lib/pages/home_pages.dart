@@ -1,4 +1,4 @@
-import 'dart:async'; // Adicione este import
+import 'dart:async'; 
 import 'package:flutter/material.dart';
 import 'package:projectflutter/pages/perfil_page.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
@@ -16,7 +16,7 @@ class _PaginaInicialState extends State<PaginaInicial> {
   late final PageController _carrosselController;
   Timer? _carrosselTimer;
 
-  // Novo estado para o dia selecionado (0=Seg, 1=Ter, ..., 4=Sex)
+
   int _diaSemanaSelecionado = DateTime.now().weekday.clamp(1, 5) - 1;
 
   @override
@@ -28,8 +28,8 @@ class _PaginaInicialState extends State<PaginaInicial> {
     // Timer para auto-scroll do carrossel
     _carrosselTimer = Timer.periodic(const Duration(seconds: 2), (timer) {
       if (!mounted) return;
-      if (!_carrosselController.hasClients) return; // <-- Adicione esta linha!
-      final noticiasLength = 3; // Atualize se mudar a quantidade de notícias
+      if (!_carrosselController.hasClients) return; 
+      final noticiasLength = 3; 
       int nextPage = _carrosselController.page?.round() ?? 0;
       nextPage = (nextPage + 1) % noticiasLength;
       _carrosselController.animateToPage(
@@ -42,8 +42,8 @@ class _PaginaInicialState extends State<PaginaInicial> {
 
   @override
   void dispose() {
-    _carrosselTimer?.cancel(); // Cancele o timer
-    _carrosselController.dispose(); // Libere o controller
+    _carrosselTimer?.cancel();
+    _carrosselController.dispose();
     super.dispose();
   }
 
@@ -175,7 +175,7 @@ class _PaginaInicialState extends State<PaginaInicial> {
     final cursoId = userData?['curso_id'];
     if (cursoId == null) return [];
 
-    // Calcula a data da semana referente ao dia selecionado
+ 
     final hoje = DateTime.now();
     final segunda = hoje.subtract(Duration(days: hoje.weekday - 1));
     final dataSelecionada = segunda.add(Duration(days: diaSemana));

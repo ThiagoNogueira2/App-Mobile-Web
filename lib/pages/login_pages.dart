@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart'; // ✅ Adiciona este import
+import 'package:flutter_svg/flutter_svg.dart'; // 
 import 'package:projectflutter/auth/auth_service.dart';
 import 'package:projectflutter/pages/home_pages.dart';
 import 'package:projectflutter/pages/register_page.dart';
@@ -29,7 +29,7 @@ class _LoginPageState extends State<LoginPage> {
         email,
         password,
       );
-      // Garante que a sessão do usuário está salva
+     
       if (Supabase.instance.client.auth.currentUser == null &&
           response.session != null) {
         await Supabase.instance.client.auth.setSession(
