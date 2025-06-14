@@ -1,16 +1,34 @@
-# projectflutter
+## 🚀 Funcionalidades Principais
 
-A new Flutter project.
+- Tela de Boas-vindas (Welcome)
+- Login de Usuário
+- Cadastro de Novos Usuários
+- Tela Inicial (Home)
+- Busca de Sala
+- Perfil do Usuário
 
-## Getting Started
+---
 
-This project is a starting point for a Flutter application.
+## 🖼️ Telas do Projeto
 
-A few resources to get you started if this is your first Flutter project:
+### 👋 Tela Welcome
+![Tela Welcome](assets/telawelcome.png)
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+### 🔑 Tela de Login
+![Tela de Login](assets/teladeLogin.png)
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+### 📝 Tela de Registro
+![Tela de Registro](assets/telaRegistro.png)
+
+### 🏠 Tela Inicial
+![Tela Inicial](assets/TelaInicio.png)
+
+### 🔍 Tela Buscar Sala
+![Buscar Sala](assets/BuscarSala.png)
+
+### 👤 Tela Perfil
+![Tela Perfil](assets/Perfil.png)
+
+---
+
+
