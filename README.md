@@ -1,9 +1,3 @@
-# 📱 Project Flutter
-
-Uma aplicação Flutter com múltiplas telas já implementadas, incluindo autenticação, busca de salas e gerenciamento de perfil.
-
----
-
 ## 🚀 Funcionalidades Principais
 
 - Tela de Boas-vindas (Welcome)
