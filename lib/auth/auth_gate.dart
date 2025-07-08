@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:projectflutter/pages/login_pages.dart';
-import 'package:projectflutter/pages/home_pages.dart';
+import 'package:projectflutter/pages/main_navigation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class AuthGate extends StatelessWidget {
@@ -18,7 +18,7 @@ class AuthGate extends StatelessWidget {
         }
         final session = snapshot.hasData ? snapshot.data!.session : null;
         if (session != null) {
-          return const PaginaInicial();
+          return const MainNavigation();
         } else {
           return const LoginPage();
         }

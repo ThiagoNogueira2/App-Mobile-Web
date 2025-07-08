@@ -1,13 +1,17 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_svg/flutter_svg.dart'; // 
+import 'package:flutter_svg/flutter_svg.dart'; //
 import 'package:projectflutter/auth/auth_service.dart';
-import 'package:projectflutter/pages/home_pages.dart';
+import 'package:projectflutter/pages/main_navigation.dart';
 import 'package:projectflutter/pages/register_page.dart';
 import 'package:projectflutter/utils/app_dimensions.dart';
+import 'package:projectflutter/widgets/loading_overlay.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:projectflutter/utils/app_colors.dart';
 
 class LoginPage extends StatefulWidget {
-  const LoginPage({super.key});
+  final bool showSuccessMessage;
+  const LoginPage({Key? key, this.showSuccessMessage = false})
+    : super(key: key);
 
   @override
   State<LoginPage> createState() => _LoginPageState();
@@ -19,17 +23,57 @@ class _LoginPageState extends State<LoginPage> {
   final _passwordController = TextEditingController();
   bool _emailError = false;
   bool _passwordError = false;
+  bool _isLoggingIn = false;
+
+  @override
+  void initState() {
+    super.initState();
+    if (widget.showSuccessMessage) {
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text("Conta criada! Agora faça o login."),
+            backgroundColor: Colors.green,
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+      });
+    }
+  }
 
   void login() async {
     final email = _emailController.text.trim();
     final password = _passwordController.text;
+
+    // Validação rápida antes de fazer a requisição
+    if (email.isEmpty || password.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text(
+            'Preencha todos os campos.',
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          backgroundColor: Colors.red,
+          duration: Duration(seconds: 2),
+        ),
+      );
+      return;
+    }
+
+    setState(() {
+      _isLoggingIn = true;
+    });
 
     try {
       final response = await authService.signInWithEmailPassword(
         email,
         password,
       );
-     
+
       if (Supabase.instance.client.auth.currentUser == null &&
           response.session != null) {
         await Supabase.instance.client.auth.setSession(
@@ -45,7 +89,7 @@ class _LoginPageState extends State<LoginPage> {
       if (mounted) {
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (_) => const PaginaInicial()),
+          MaterialPageRoute(builder: (_) => const MainNavigation()),
         );
       }
     } catch (e) {
@@ -68,6 +112,12 @@ class _LoginPageState extends State<LoginPage> {
         _emailError = true;
         _passwordError = true;
       });
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isLoggingIn = false;
+        });
+      }
     }
   }
 
@@ -87,11 +137,11 @@ class _LoginPageState extends State<LoginPage> {
           // Troque o SVG pelo JPG
           SizedBox.expand(
             child: Image.asset(
-              'assets/images/champions.jfif', // coloque o caminho do seu JPG aqui
+              'assets/images/loginimg.jfif', // coloque o caminho do seu JPG aqui
               fit: BoxFit.cover,
             ),
           ),
-          Container(color: Colors.black.withOpacity(0.4)),
+          Container(color: Colors.black.withOpacity(0.7)),
           SingleChildScrollView(
             padding: EdgeInsets.symmetric(
               horizontal: AppDimensions.paddingMedium,
@@ -103,7 +153,7 @@ class _LoginPageState extends State<LoginPage> {
                   SizedBox(height: AppDimensions.blockHeight * 3),
                   Center(
                     child: RichText(
-                      text: const TextSpan(
+                      text: TextSpan(
                         children: [
                           TextSpan(
                             text: "Campus",
@@ -117,14 +167,14 @@ class _LoginPageState extends State<LoginPage> {
                             text: "M",
                             style: TextStyle(
                               fontSize: 42,
-                              color: Color(0xFF1D4ED8),
+                              color: Color(0xFF44A301),
                               fontWeight: FontWeight.bold,
                             ),
                           ),
                           WidgetSpan(
                             child: Icon(
                               Icons.location_on,
-                              color: Color(0xFF1D4ED8),
+                              color: Color.fromARGB(255, 255, 255, 255),
                               size: 42,
                             ),
                           ),
@@ -132,7 +182,7 @@ class _LoginPageState extends State<LoginPage> {
                             text: "p",
                             style: TextStyle(
                               fontSize: 42,
-                              color: Color(0xFF1D4ED8),
+                              color: Color(0xFF44A301),
                               fontWeight: FontWeight.bold,
                             ),
                           ),
@@ -141,33 +191,27 @@ class _LoginPageState extends State<LoginPage> {
                     ),
                   ),
                   SizedBox(height: AppDimensions.blockHeight * 15),
-                  Padding(
-                    padding: EdgeInsets.only(
-                      right: AppDimensions.blockWidth * 22,
-                    ),
-                    child: Align(
-                      alignment: Alignment.centerRight,
-                      child: RichText(
-                        text: const TextSpan(
-                          children: [
-                            TextSpan(
-                              text: "Sign ",
-                              style: TextStyle(
-                                fontSize: 40,
-                                color: Colors.white,
-                                fontWeight: FontWeight.bold,
-                              ),
+                  Center(
+                    child: RichText(
+                      text: TextSpan(
+                        children: [
+                          TextSpan(
+                            text: "Sign ",
+                            style: TextStyle(
+                              fontSize: 40,
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
                             ),
-                            TextSpan(
-                              text: "in",
-                              style: TextStyle(
-                                fontSize: 40,
-                                color: Color(0xFF1D4ED8),
-                                fontWeight: FontWeight.bold,
-                              ),
+                          ),
+                          TextSpan(
+                            text: "in",
+                            style: TextStyle(
+                              fontSize: 40,
+                              color: Color(0xFF44A301),
+                              fontWeight: FontWeight.bold,
                             ),
-                          ],
-                        ),
+                          ),
+                        ],
                       ),
                     ),
                   ),
@@ -253,7 +297,7 @@ class _LoginPageState extends State<LoginPage> {
                         },
                         style: OutlinedButton.styleFrom(
                           foregroundColor: Colors.white,
-                          backgroundColor: Color(0xFF1D4ED8),
+                          backgroundColor: Color(0xFF44A301),
                           side: const BorderSide(color: Colors.green),
                           shape: RoundedRectangleBorder(
                             borderRadius: BorderRadius.circular(30),
@@ -268,7 +312,7 @@ class _LoginPageState extends State<LoginPage> {
                         ),
                       ),
                       OutlinedButton(
-                        onPressed: login,
+                        onPressed: _isLoggingIn ? null : login,
                         style: OutlinedButton.styleFrom(
                           foregroundColor: Colors.white,
                           backgroundColor: Colors.black,
@@ -282,7 +326,19 @@ class _LoginPageState extends State<LoginPage> {
                             horizontal: AppDimensions.blockWidth * 6,
                             vertical: AppDimensions.blockHeight * 1.5,
                           ),
-                          child: const Text("Login"),
+                          child:
+                              _isLoggingIn
+                                  ? const SizedBox(
+                                    width: 20,
+                                    height: 20,
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2,
+                                      valueColor: AlwaysStoppedAnimation<Color>(
+                                        Colors.white,
+                                      ),
+                                    ),
+                                  )
+                                  : const Text("Login"),
                         ),
                       ),
                     ],

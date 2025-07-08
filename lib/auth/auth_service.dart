@@ -1,7 +1,11 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
+import '../services/cache_service.dart';
+import '../services/logged_user_preload_service.dart';
 
 class AuthService {
   final SupabaseClient _supabase = Supabase.instance.client;
+  final CacheService _cacheService = CacheService();
+  final LoggedUserPreloadService _loggedUserPreload = LoggedUserPreloadService();
 
   Future<AuthResponse> signInWithEmailPassword(
     String email,
@@ -82,6 +86,8 @@ class AuthService {
 
   Future<void> signOut() async {
     await _supabase.auth.signOut();
+    _cacheService.clearUserCache();
+    _loggedUserPreload.clearAllCaches();
   }
 
   User? getCurrentUser() {

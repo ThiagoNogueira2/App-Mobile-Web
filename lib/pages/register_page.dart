@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:projectflutter/auth/auth_service.dart';
 import 'package:projectflutter/pages/login_pages.dart';
+import 'package:projectflutter/utils/app_dimensions.dart';
+import 'package:projectflutter/services/cache_service.dart';
+import 'package:projectflutter/widgets/loading_overlay.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:projectflutter/utils/app_colors.dart';
 
 class RegisterPage extends StatefulWidget {
   const RegisterPage({super.key});
@@ -12,6 +16,7 @@ class RegisterPage extends StatefulWidget {
 
 class _RegisterPageState extends State<RegisterPage> {
   final authService = AuthService();
+  final _cacheService = CacheService();
   final _nomeController = TextEditingController();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
@@ -20,6 +25,7 @@ class _RegisterPageState extends State<RegisterPage> {
   List<Map<String, dynamic>> _cursos = [];
   int? _cursoSelecionadoId;
   bool _carregandoCursos = true;
+  bool _isSigningUp = false;
 
   @override
   void initState() {
@@ -27,15 +33,39 @@ class _RegisterPageState extends State<RegisterPage> {
     _buscarCursos();
   }
 
+  // Função para converter número do período para nome
+  String _obterNomePeriodo(int? periodo) {
+    switch (periodo) {
+      case 1:
+        return 'Matutino';
+      case 2:
+        return 'Vespertino';
+      case 3:
+        return 'Noturno';
+      default:
+        return 'Não informado';
+    }
+  }
+
   Future<void> _buscarCursos() async {
-    final supabase = Supabase.instance.client;
-    final data = await supabase
-        .from('cursos')
-        .select('id, curso, semestre, periodo');
-    setState(() {
-      _cursos = List<Map<String, dynamic>>.from(data);
-      _carregandoCursos = false;
-    });
+    try {
+      final cursos = await _cacheService.getCursos();
+      if (mounted) {
+        setState(() {
+          _cursos = cursos;
+          _carregandoCursos = false;
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _carregandoCursos = false;
+        });
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text("Erro ao carregar cursos: $e")));
+      }
+    }
   }
 
   void signUp() async {
@@ -73,6 +103,10 @@ class _RegisterPageState extends State<RegisterPage> {
       return;
     }
 
+    setState(() {
+      _isSigningUp = true;
+    });
+
     try {
       // Busca o nome do curso selecionado para salvar no metadata do Auth
       final curso = _cursos.firstWhere((c) => c['id'] == cursoId);
@@ -109,256 +143,326 @@ class _RegisterPageState extends State<RegisterPage> {
       if (mounted) {
         Navigator.pushReplacement(
           context,
-          MaterialPageRoute(builder: (context) => const LoginPage()),
+          MaterialPageRoute(
+            builder: (context) => const LoginPage(showSuccessMessage: true),
+          ),
         );
       }
     } catch (e) {
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(SnackBar(content: Text("Erro ao cadastrar: $e")));
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isSigningUp = false;
+        });
+      }
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    final largura = MediaQuery.of(context).size.width;
+    AppDimensions.init(context);
+
     final cursoSelecionado = _cursos.firstWhere(
       (c) => c['id'] == _cursoSelecionadoId,
       orElse: () => {},
     );
+
     return Scaffold(
       extendBodyBehindAppBar: true,
       appBar: AppBar(
         backgroundColor: Colors.transparent,
         elevation: 0,
-        leading: BackButton(color: Colors.black),
+        leading: const BackButton(color: Colors.black),
       ),
       body: Stack(
         children: [
-          Container(
-            decoration: const BoxDecoration(
-              image: DecorationImage(
-                image: AssetImage('assets/images/brasao.jpg'),
-                fit: BoxFit.cover,
-              ),
+          // Imagem de fundo
+          SizedBox.expand(
+            child: Image.asset(
+              'assets/images/loginimg.jfif',
+              fit: BoxFit.cover,
             ),
           ),
-          Container(color: Colors.black.withOpacity(0.4)),
-          Center(
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.symmetric(horizontal: 24.0),
-              child: SafeArea(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const SizedBox(height: 80),
-                    Center(
-                      child: RichText(
-                        text: const TextSpan(
-                          children: [
-                            TextSpan(
-                              text: "Campus",
-                              style: TextStyle(
-                                fontSize: 42,
-                                color: Colors.white,
-                                fontWeight: FontWeight.bold,
-                              ),
+          Container(color: Colors.black.withOpacity(0.7)),
+          SingleChildScrollView(
+            padding: EdgeInsets.symmetric(
+              horizontal: AppDimensions.paddingMedium,
+            ),
+            child: SafeArea(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  SizedBox(height: AppDimensions.blockHeight * 3),
+                  Center(
+                    child: RichText(
+                      text: TextSpan(
+                        children: [
+                          TextSpan(
+                            text: "Campus",
+                            style: TextStyle(
+                              fontSize: 42,
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
                             ),
-                            TextSpan(
-                              text: "M",
-                              style: TextStyle(
-                                fontSize: 42,
-                                color: Color(0xFF1D4ED8),
-                                fontWeight: FontWeight.bold,
-                              ),
+                          ),
+                          TextSpan(
+                            text: "M",
+                            style: TextStyle(
+                              fontSize: 42,
+                              color: Color(0xFF44A301),
+                              fontWeight: FontWeight.bold,
                             ),
-                            WidgetSpan(
-                              child: Icon(
-                                Icons.location_on,
-                                color: Color(0xFF1D4ED8),
-                                size: 42,
-                              ),
+                          ),
+                          WidgetSpan(
+                            child: Icon(
+                              Icons.location_on,
+                              color: Color.fromARGB(255, 255, 255, 255),
+                              size: 42,
                             ),
-                            TextSpan(
-                              text: "p",
-                              style: TextStyle(
-                                fontSize: 42,
-                                color: Color(0xFF1D4ED8),
-                                fontWeight: FontWeight.bold,
-                              ),
+                          ),
+                          TextSpan(
+                            text: "p",
+                            style: TextStyle(
+                              fontSize: 42,
+                              color: Color(0xFF44A301),
+                              fontWeight: FontWeight.bold,
                             ),
-                          ],
-                        ),
+                          ),
+                        ],
                       ),
                     ),
-                    const SizedBox(height: 100),
-                    Padding(
-                      padding:
-                          largura < 500
-                              ? EdgeInsets.zero
-                              : const EdgeInsets.only(left: 85),
-                      child: RichText(
-                        text: const TextSpan(
-                          children: [
-                            TextSpan(
-                              text: "Sign ",
-                              style: TextStyle(
-                                fontSize: 40,
-                                color: Colors.white,
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                            TextSpan(
-                              text: "up",
-                              style: TextStyle(
-                                fontSize: 40,
-                                color: Color(0xFF1D4ED8),
-                                fontWeight: FontWeight.bold,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                    Center(
-                      child: SizedBox(
-                        width: largura < 500 ? largura * 0.98 : 400,
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const SizedBox(height: 18),
-                            _buildTextField(_nomeController, "Nome"),
-                            const SizedBox(height: 18),
-                            _buildTextField(_emailController, 'Email'),
-                            const SizedBox(height: 18),
-                            _buildTextField(
-                              _passwordController,
-                              'Password',
-                              obscure: true,
-                            ),
-                            const SizedBox(height: 18),
-                            _buildTextField(
-                              _confirmPasswordController,
-                              'Confirm Password',
-                              obscure: true,
-                            ),
-                            const SizedBox(height: 18),
-                            _carregandoCursos
-                                ? const Center(
-                                  child: CircularProgressIndicator(),
-                                )
-                                : DropdownButtonFormField<int>(
-                                  value: _cursoSelecionadoId,
-                                  items:
-                                      _cursos
-                                          .map(
-                                            (curso) => DropdownMenuItem<int>(
-                                              value: curso['id'],
-                                              child: Text(
-                                                curso['curso'] ??
-                                                    curso['nome'] ??
-                                                    '',
-                                                style: const TextStyle(
-                                                  color: Colors.black,
-                                                ),
-                                              ),
-                                            ),
-                                          )
-                                          .toList(),
-                                  onChanged: (value) {
-                                    setState(() {
-                                      _cursoSelecionadoId = value;
-                                    });
-                                  },
-                                  decoration: const InputDecoration(
-                                    labelText: 'Curso',
-                                    labelStyle: TextStyle(color: Colors.white),
-                                    enabledBorder: UnderlineInputBorder(
-                                      borderSide: BorderSide(
-                                        color: Colors.white,
-                                      ),
-                                    ),
-                                    focusedBorder: UnderlineInputBorder(
-                                      borderSide: BorderSide(
-                                        color: Colors.green,
-                                      ),
-                                    ),
-                                  ),
-                                  dropdownColor: Colors.white,
-                                ),
-                            if (cursoSelecionado.isNotEmpty) ...[
-                              const SizedBox(height: 18),
-                              Text(
-                                'Semestre: ${cursoSelecionado['semestre'] ?? '-'}',
-                                style: const TextStyle(
+                  ),
+                  SizedBox(height: AppDimensions.blockHeight * 10),
+                  Center(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        RichText(
+                          text: TextSpan(
+                            children: [
+                              TextSpan(
+                                text: "Sign ",
+                                style: TextStyle(
+                                  fontSize: 40,
                                   color: Colors.white,
-                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
                                 ),
                               ),
-                              const SizedBox(height: 8),
-                              Text(
-                                'Período: ${cursoSelecionado['periodo']?.toString() ?? '-'}',
-                                style: const TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 16,
+                              TextSpan(
+                                text: "up",
+                                style: TextStyle(
+                                  fontSize: 40,
+                                  color: Color(0xFF44A301),
+                                  fontWeight: FontWeight.bold,
                                 ),
                               ),
                             ],
-                          ],
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 35),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                      children: [
-                        OutlinedButton(
-                          onPressed: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => const LoginPage(),
-                              ),
-                            );
-                          },
-                          style: OutlinedButton.styleFrom(
-                            foregroundColor: Colors.white,
-                            backgroundColor: Colors.black,
-                            side: const BorderSide(color: Colors.white),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(30),
-                            ),
-                          ),
-                          child: const Padding(
-                            padding: EdgeInsets.symmetric(
-                              horizontal: 24,
-                              vertical: 12,
-                            ),
-                            child: Text("Voltar"),
-                          ),
-                        ),
-                        OutlinedButton(
-                          onPressed: signUp,
-                          style: OutlinedButton.styleFrom(
-                            foregroundColor: Colors.white,
-                            backgroundColor: Color(0xFF1D4ED8),
-                            side: const BorderSide(color: Colors.green),
-                            shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(30),
-                            ),
-                          ),
-                          child: const Padding(
-                            padding: EdgeInsets.symmetric(
-                              horizontal: 24,
-                              vertical: 12,
-                            ),
-                            child: Text("Sign up"),
                           ),
                         ),
                       ],
                     ),
-                  ],
-                ),
+                  ),
+
+                  Center(
+                    child: SizedBox(
+                      width: AppDimensions.screenWidth * 0.8,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          SizedBox(height: AppDimensions.blockHeight * 12),
+                          _buildTextField(_nomeController, "Nome"),
+                          SizedBox(height: AppDimensions.blockHeight * 3),
+                          _buildTextField(_emailController, 'Email'),
+                          SizedBox(height: AppDimensions.blockHeight * 3),
+                          _buildTextField(
+                            _passwordController,
+                            'Password',
+                            obscure: true,
+                          ),
+                          SizedBox(height: AppDimensions.blockHeight * 3),
+                          _buildTextField(
+                            _confirmPasswordController,
+                            'Confirm Password',
+                            obscure: true,
+                          ),
+                          SizedBox(height: AppDimensions.blockHeight * 3),
+                          _carregandoCursos
+                              ? const Center(child: CircularProgressIndicator())
+                              : Row(
+                                children: [
+                                  Expanded(
+                                    flex: 3,
+                                    child: DropdownButtonFormField<int>(
+                                      value: _cursoSelecionadoId,
+                                      items:
+                                          _cursos
+                                              .map(
+                                                (curso) =>
+                                                    DropdownMenuItem<int>(
+                                                      value: curso['id'],
+                                                      child: Text(
+                                                        curso['curso'] ??
+                                                            curso['nome'] ??
+                                                            '',
+                                                        style: const TextStyle(
+                                                          color: Colors.black,
+                                                        ),
+                                                      ),
+                                                    ),
+                                              )
+                                              .toList(),
+                                      onChanged: (value) {
+                                        setState(() {
+                                          _cursoSelecionadoId = value;
+                                        });
+                                      },
+                                      selectedItemBuilder: (
+                                        BuildContext context,
+                                      ) {
+                                        return _cursos.map<Widget>((curso) {
+                                          return Text(
+                                            curso['curso'] ??
+                                                curso['nome'] ??
+                                                '',
+                                            style: const TextStyle(
+                                              color: Colors.white,
+                                              fontSize: 14,
+                                            ),
+                                            overflow: TextOverflow.ellipsis,
+                                          );
+                                        }).toList();
+                                      },
+                                      decoration: const InputDecoration(
+                                        labelText: 'Curso',
+                                        labelStyle: TextStyle(
+                                          color: Colors.white,
+                                        ),
+                                        hintStyle: TextStyle(
+                                          color: Colors.white,
+                                        ),
+                                        enabledBorder: UnderlineInputBorder(
+                                          borderSide: BorderSide(
+                                            color: Colors.white,
+                                          ),
+                                        ),
+                                        focusedBorder: UnderlineInputBorder(
+                                          borderSide: BorderSide(
+                                            color: Colors.white,
+                                          ),
+                                        ),
+                                      ),
+                                      dropdownColor: Colors.white,
+                                      iconEnabledColor: Colors.white,
+                                      iconDisabledColor: Colors.grey,
+                                      isExpanded: true,
+                                    ),
+                                  ),
+                                  if (cursoSelecionado.isNotEmpty) ...[
+                                    const SizedBox(width: 12),
+                                    Expanded(
+                                      flex: 2,
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            'Semestre: ${cursoSelecionado['semestre'] ?? '-'}',
+                                            style: const TextStyle(
+                                              color: Colors.white,
+                                              fontSize: 12,
+                                            ),
+                                            overflow: TextOverflow.ellipsis,
+                                          ),
+                                          const SizedBox(height: 2),
+                                          Text(
+                                            'Período: ${_obterNomePeriodo(cursoSelecionado['periodo'])}',
+                                            style: const TextStyle(
+                                              color: Colors.white,
+                                              fontSize: 12,
+                                            ),
+                                            overflow: TextOverflow.ellipsis,
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ],
+                                ],
+                              ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  Column(
+                    mainAxisSize: MainAxisSize.min, // <- isso resolve!
+                    children: [
+                      SizedBox(height: AppDimensions.blockHeight * 7),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                        children: [
+                          OutlinedButton(
+                            onPressed: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => const LoginPage(),
+                                ),
+                              );
+                            },
+                            style: OutlinedButton.styleFrom(
+                              foregroundColor: Colors.white,
+                              backgroundColor: Colors.black,
+                              side: const BorderSide(color: Colors.white),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(30),
+                              ),
+                            ),
+                            child: Padding(
+                              padding: EdgeInsets.symmetric(
+                                horizontal: AppDimensions.blockWidth * 4,
+                                vertical: AppDimensions.blockHeight * 1.5,
+                              ),
+                              child: const Text("Voltar"),
+                            ),
+                          ),
+                          OutlinedButton(
+                            onPressed: _isSigningUp ? null : signUp,
+                            style: OutlinedButton.styleFrom(
+                              foregroundColor: Colors.white,
+                              backgroundColor: Color(0xFF44A301),
+                              side: const BorderSide(color: Colors.green),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(30),
+                              ),
+                            ),
+                            child: Padding(
+                              padding: EdgeInsets.symmetric(
+                                horizontal: AppDimensions.blockWidth * 4,
+                                vertical: AppDimensions.blockHeight * 1.5,
+                              ),
+                              child:
+                                  _isSigningUp
+                                      ? const SizedBox(
+                                        width: 20,
+                                        height: 20,
+                                        child: CircularProgressIndicator(
+                                          strokeWidth: 2,
+                                          valueColor:
+                                              AlwaysStoppedAnimation<Color>(
+                                                Colors.white,
+                                              ),
+                                        ),
+                                      )
+                                      : const Text("Sign up"),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ],
               ),
             ),
           ),
@@ -375,6 +479,7 @@ class _RegisterPageState extends State<RegisterPage> {
     return TextField(
       controller: controller,
       obscureText: obscure,
+      cursorColor: Colors.white,
       style: const TextStyle(color: Colors.white),
       decoration: InputDecoration(
         labelText: label,
@@ -383,7 +488,7 @@ class _RegisterPageState extends State<RegisterPage> {
           borderSide: BorderSide(color: Colors.white),
         ),
         focusedBorder: const UnderlineInputBorder(
-          borderSide: BorderSide(color: Colors.green),
+          borderSide: BorderSide(color: Colors.white),
         ),
       ),
     );

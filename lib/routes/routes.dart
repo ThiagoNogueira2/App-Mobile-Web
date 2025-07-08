@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import '../pages/welcome_page.dart';
 import '../pages/login_pages.dart';
 import '../pages/register_page.dart';
-import '../pages/home_pages.dart';
+import '../pages/main_navigation.dart';
 
 //Criando as rotas para chamar elas, em ocasioes especificas dentro do app
 class AppRoutes {
@@ -15,6 +15,6 @@ class AppRoutes {
     welcome: (context) => const WelcomePage(),
     login: (context) => const LoginPage(),
     register: (context) => const RegisterPage(),
-    home: (context) => const PaginaInicial(),
+    home: (context) => const MainNavigation(),
   };
 }

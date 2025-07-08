@@ -5,20 +5,20 @@ ENV FLUTTER_ALLOW_LOCAL_ENGINE_IN_RELEASE=true
 
 WORKDIR /app
 
-# Copia arquivos do pubspec primeiro
+# Copia os arquivos de dependências primeiro
 COPY pubspec.* ./
 
 # Baixa as dependências
-RUN flutter pub get || true
+RUN flutter pub get
 
 # Copia o restante do projeto
 COPY . .
 
-# Roda pub get novamente para garantir tudo atualizado
+# Garante que dependências estão atualizadas
 RUN flutter pub get
 
-# Exponha a porta 8080 para acessar via navegador
+# Exponha a porta usada pelo servidor web
 EXPOSE 8080
 
-# Roda o app no servidor web
+# Comando padrão: roda o app no web-server
 CMD ["flutter", "run", "-d", "web-server", "--web-port", "8080", "--web-hostname", "0.0.0.0"]

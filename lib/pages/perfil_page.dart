@@ -17,7 +17,7 @@ class _PerfilPageState extends State<PerfilPage> {
   final TextEditingController _emailController = TextEditingController();
   final TextEditingController _cursoController = TextEditingController();
   final TextEditingController _semestreController = TextEditingController();
-  final TextEditingController _periodoController = TextEditingController();
+  String? _periodoSelecionado;
 
   @override
   void initState() {
@@ -61,7 +61,7 @@ class _PerfilPageState extends State<PerfilPage> {
     _cursoController.text = userData?['cursos']?['curso'] ?? '';
     _semestreController.text =
         userData?['cursos']?['semestre']?.toString() ?? '';
-    _periodoController.text = userData?['cursos']?['periodo']?.toString() ?? '';
+    _periodoSelecionado = userData?['cursos']?['periodo']?.toString();
   }
 
   Future<void> atualizarPerfil() async {
@@ -144,9 +144,9 @@ class _PerfilPageState extends State<PerfilPage> {
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
                     colors: [
-                      Color(0xFF2563EB), // azul vivo
-                      Color(0xFF1D4ED8), // azul escuro
-                      Color(0xFF60A5FA), // azul claro
+                      Color(0xFF44A301),
+                      Color(0xFF44A301),
+                      Color(0xFF44A301),
                     ],
                   ),
                 ),
@@ -160,7 +160,7 @@ class _PerfilPageState extends State<PerfilPage> {
                         width: 200,
                         height: 200,
                         decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.1),
+                          color: Colors.white.withOpacity(0.25),
                           shape: BoxShape.circle,
                         ),
                       ),
@@ -172,7 +172,7 @@ class _PerfilPageState extends State<PerfilPage> {
                         width: 120,
                         height: 120,
                         decoration: BoxDecoration(
-                          color: Colors.white.withOpacity(0.08),
+                          color: Colors.white.withOpacity(0.18),
                           shape: BoxShape.circle,
                         ),
                       ),
@@ -182,6 +182,7 @@ class _PerfilPageState extends State<PerfilPage> {
                       child: Padding(
                         padding: const EdgeInsets.fromLTRB(24, 60, 24, 24),
                         child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.center,
                           children: [
                             // Avatar
                             Container(
@@ -208,22 +209,14 @@ class _PerfilPageState extends State<PerfilPage> {
                                 color: Colors.white,
                               ),
                             ),
-                            const SizedBox(height: 16),
+                            const SizedBox(height: 8),
                             Text(
                               userData?['nome'] ?? 'Usuário',
+                              textAlign: TextAlign.center,
                               style: const TextStyle(
                                 fontSize: 24,
                                 fontWeight: FontWeight.bold,
                                 color: Colors.white,
-                              ),
-                            ),
-                            const SizedBox(height: 8),
-                            Text(
-                              userData?['cursos']?['curso'] ??
-                                  'Curso não informado',
-                              style: TextStyle(
-                                fontSize: 16,
-                                color: Colors.white.withOpacity(0.9),
                               ),
                             ),
                           ],
@@ -394,7 +387,7 @@ class _PerfilPageState extends State<PerfilPage> {
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
                 gradient: const LinearGradient(
-                  colors: [Color(0xFF2563EB), Color(0xFF60A5FA)],
+                  colors: [Color(0xFF44A301), Color(0xFF44A301)],
                 ),
                 borderRadius: BorderRadius.circular(12),
               ),
@@ -427,7 +420,7 @@ class _PerfilPageState extends State<PerfilPage> {
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
                 gradient: const LinearGradient(
-                  colors: [Color(0xFF1D4ED8), Color(0xFF60A5FA)],
+                  colors: [Color(0xFF44A301), Color(0xFF44A301)],
                 ),
                 borderRadius: BorderRadius.circular(12),
               ),
@@ -462,7 +455,7 @@ class _PerfilPageState extends State<PerfilPage> {
         _buildInfoCard(
           Icons.access_time_rounded,
           'Período',
-          userData?['cursos']?['periodo'],
+          _getPeriodoText(userData?['cursos']?['periodo']),
         ),
       ],
     );
@@ -480,7 +473,7 @@ class _PerfilPageState extends State<PerfilPage> {
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
                   gradient: const LinearGradient(
-                    colors: [Color(0xFF2563EB), Color(0xFF60A5FA)],
+                    colors: [Color(0xFF44A301), Color(0xFF44A301)],
                   ),
                   borderRadius: BorderRadius.circular(12),
                 ),
@@ -532,7 +525,9 @@ class _PerfilPageState extends State<PerfilPage> {
             readOnly: true,
           ),
           _buildEditField(
-            _periodoController,
+            TextEditingController(
+              text: _getPeriodoText(userData?['cursos']?['periodo']),
+            ),
             'Período',
             Icons.access_time_rounded,
             readOnly: true,
@@ -569,7 +564,7 @@ class _PerfilPageState extends State<PerfilPage> {
                 child: Container(
                   decoration: BoxDecoration(
                     gradient: const LinearGradient(
-                      colors: [Color(0xFF2563EB), Color(0xFF60A5FA)],
+                      colors: [Color(0xFF44A301), Color(0xFF44A301)],
                     ),
                     borderRadius: BorderRadius.circular(12),
                   ),
@@ -622,13 +617,13 @@ class _PerfilPageState extends State<PerfilPage> {
             decoration: BoxDecoration(
               gradient: LinearGradient(
                 colors: [
-                  const Color(0xFF2563EB).withOpacity(0.1),
-                  const Color(0xFF60A5FA).withOpacity(0.1),
+                  const Color(0xFF44A301).withOpacity(0.1),
+                  const Color(0xFF44A301).withOpacity(0.1),
                 ],
               ),
               borderRadius: BorderRadius.circular(10),
             ),
-            child: Icon(icon, color: const Color(0xFF2563EB), size: 20),
+            child: Icon(icon, color: Color(0xFF44A301), size: 20),
           ),
           const SizedBox(width: 16),
           Expanded(
@@ -702,16 +697,17 @@ class _PerfilPageState extends State<PerfilPage> {
             margin: const EdgeInsets.all(12),
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
-              gradient: readOnly
-                  ? LinearGradient(
-                      colors: [
-                        const Color(0xFF94A3B8).withOpacity(0.1),
-                        const Color(0xFF94A3B8).withOpacity(0.1),
-                      ],
-                    )
-                  : const LinearGradient(
-                      colors: [Color(0xFF2563EB), Color(0xFF60A5FA)],
-                    ),
+              gradient:
+                  readOnly
+                      ? LinearGradient(
+                        colors: [
+                          const Color(0xFF94A3B8).withOpacity(0.1),
+                          const Color(0xFF94A3B8).withOpacity(0.1),
+                        ],
+                      )
+                      : const LinearGradient(
+                        colors: [Color(0xFF44A301), Color(0xFF44A301)],
+                      ),
               borderRadius: BorderRadius.circular(8),
             ),
             child: Icon(
@@ -726,13 +722,15 @@ class _PerfilPageState extends State<PerfilPage> {
           border: OutlineInputBorder(
             borderRadius: BorderRadius.circular(12),
             borderSide: BorderSide(
-              color: readOnly ? const Color(0xFFD1E9FF) : const Color(0xFFD1E9FF),
+              color:
+                  readOnly ? const Color(0xFFD1E9FF) : const Color(0xFFD1E9FF),
             ),
           ),
           enabledBorder: OutlineInputBorder(
             borderRadius: BorderRadius.circular(12),
             borderSide: BorderSide(
-              color: readOnly ? const Color(0xFFD1E9FF) : const Color(0xFFD1E9FF),
+              color:
+                  readOnly ? const Color(0xFFD1E9FF) : const Color(0xFFD1E9FF),
             ),
           ),
           focusedBorder: OutlineInputBorder(
@@ -748,6 +746,111 @@ class _PerfilPageState extends State<PerfilPage> {
             vertical: 16,
           ),
         ),
+      ),
+    );
+  }
+
+  String _getPeriodoText(dynamic periodo) {
+    if (periodo == null) return 'Não informado';
+
+    switch (periodo.toString()) {
+      case '1':
+        return 'Matutino';
+      case '2':
+        return 'Vespertino';
+      case '3':
+        return 'Noturno';
+      default:
+        return periodo.toString();
+    }
+  }
+
+  Widget _buildPeriodoDropdown() {
+    final periodos = [
+      {'value': '1', 'label': 'Matutino'},
+      {'value': '2', 'label': 'Vespertino'},
+      {'value': '3', 'label': 'Noturno'},
+    ];
+
+    return Container(
+      margin: const EdgeInsets.only(bottom: 20),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              gradient: const LinearGradient(
+                colors: [Color(0xFF44A301), Color(0xFF44A301)],
+              ),
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: const Icon(
+              Icons.access_time_rounded,
+              color: Colors.white,
+              size: 20,
+            ),
+          ),
+          const SizedBox(height: 12),
+          DropdownButtonFormField<String>(
+            value: _periodoSelecionado,
+            decoration: InputDecoration(
+              labelText: 'Período',
+              labelStyle: const TextStyle(
+                color: Color(0xFF64748B),
+                fontWeight: FontWeight.w500,
+              ),
+              filled: true,
+              fillColor: const Color(0xFFF1F5F9),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: const BorderSide(color: Color(0xFFD1E9FF)),
+              ),
+              enabledBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: const BorderSide(color: Color(0xFFD1E9FF)),
+              ),
+              focusedBorder: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+                borderSide: const BorderSide(
+                  color: Color(0xFF2563EB),
+                  width: 2,
+                ),
+              ),
+              contentPadding: const EdgeInsets.symmetric(
+                horizontal: 20,
+                vertical: 16,
+              ),
+            ),
+            items:
+                periodos.map((periodo) {
+                  return DropdownMenuItem<String>(
+                    value: periodo['value'],
+                    child: Text(
+                      periodo['label']!,
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w500,
+                        color: Color(0xFF1E293B),
+                      ),
+                    ),
+                  );
+                }).toList(),
+            onChanged: (String? newValue) {
+              setState(() {
+                _periodoSelecionado = newValue;
+              });
+            },
+            icon: const Icon(Icons.keyboard_arrow_down_rounded),
+            iconSize: 24,
+            dropdownColor: Colors.white,
+            style: const TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.w500,
+              color: Color(0xFF1E293B),
+            ),
+          ),
+        ],
       ),
     );
   }

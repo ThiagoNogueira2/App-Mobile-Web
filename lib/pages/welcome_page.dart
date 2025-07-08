@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
 import 'package:projectflutter/auth/auth_gate.dart';
+import 'package:projectflutter/services/preload_service.dart';
 
 class WelcomePage extends StatefulWidget {
   const WelcomePage({super.key});
@@ -27,6 +28,9 @@ class _WelcomePageState extends State<WelcomePage>
     _initAnimations();
     _startAnimations();
     _navigateToAuth();
+
+    // Inicia pré-carregamento em background
+    PreloadService().preloadData();
   }
 
   void _initAnimations() {
@@ -142,11 +146,8 @@ class _WelcomePageState extends State<WelcomePage>
           gradient: LinearGradient(
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
-            colors: [
-              Color(0xFF2563EB), // azul vivo
-              Color.fromARGB(255, 22, 78, 146), // azul claro
-            ],
-            stops: [0.0, 1.0], // Corrigido: 2 cores, 2 stops
+            colors: [Color(0xFF44A301), Color(0xFF44A301)],
+            stops: [0.0, 1.0],
           ),
         ),
         child: Stack(
@@ -204,7 +205,7 @@ class _WelcomePageState extends State<WelcomePage>
                                 text: "M",
                                 style: TextStyle(
                                   fontSize: 48,
-                                  color: Color(0xFF2D3142),
+                                  color: Color(0xFF6A8A3A), // Verde principal
                                   fontWeight: FontWeight.w800,
                                   letterSpacing: 2,
                                   shadows: [
@@ -228,8 +229,12 @@ class _WelcomePageState extends State<WelcomePage>
                                         decoration: BoxDecoration(
                                           gradient: const LinearGradient(
                                             colors: [
-                                              Color(0xFF4285F4),
-                                              Color(0xFF34A853),
+                                              Color(
+                                                0xFF6A8A3A,
+                                              ), // Verde principal
+                                              Color(
+                                                0xFFD09B2C,
+                                              ), // Amarelo mostarda
                                             ],
                                           ),
                                           borderRadius: BorderRadius.circular(
@@ -237,8 +242,8 @@ class _WelcomePageState extends State<WelcomePage>
                                           ),
                                           boxShadow: [
                                             BoxShadow(
-                                              color: const Color(
-                                                0xFF4285F4,
+                                              color: Color(
+                                                0xFF6A8A3A,
                                               ).withOpacity(0.3),
                                               blurRadius: 8,
                                               offset: const Offset(0, 4),
@@ -259,7 +264,7 @@ class _WelcomePageState extends State<WelcomePage>
                                 text: "p",
                                 style: TextStyle(
                                   fontSize: 48,
-                                  color: Color(0xFF2D3142),
+                                  color: Color(0xFF6A8A3A), // Verde principal
                                   fontWeight: FontWeight.w800,
                                   letterSpacing: 2,
                                   shadows: [
