@@ -7,6 +7,8 @@ import 'package:projectflutter/utils/app_dimensions.dart';
 import 'package:projectflutter/widgets/loading_overlay.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:projectflutter/utils/app_colors.dart';
+import 'package:projectflutter/config/app_config.dart';
+import 'package:projectflutter/routes/routes.dart';
 
 class LoginPage extends StatefulWidget {
   final bool showSuccessMessage;
@@ -343,6 +345,24 @@ class _LoginPageState extends State<LoginPage> {
                       ),
                     ],
                   ),
+                  // Botão de diagnóstico (temporário para debug)
+                  if (AppConfig.enableDebugMode) ...[
+                    SizedBox(height: AppDimensions.blockHeight * 3),
+                    Center(
+                      child: TextButton(
+                        onPressed: () {
+                          Navigator.pushNamed(context, AppRoutes.networkDiagnostic);
+                        },
+                        child: const Text(
+                          '🔧 Diagnóstico de Rede',
+                          style: TextStyle(
+                            color: Colors.white70,
+                            fontSize: 12,
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
                 ],
               ),
             ),

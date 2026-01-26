@@ -5,7 +5,8 @@ import '../services/logged_user_preload_service.dart';
 class AuthService {
   final SupabaseClient _supabase = Supabase.instance.client;
   final CacheService _cacheService = CacheService();
-  final LoggedUserPreloadService _loggedUserPreload = LoggedUserPreloadService();
+  final LoggedUserPreloadService _loggedUserPreload =
+      LoggedUserPreloadService();
 
   Future<AuthResponse> signInWithEmailPassword(
     String email,
@@ -41,7 +42,7 @@ class AuthService {
 
     final user = response.user;
 
-    // Insere também na tabela "users"
+    // Insere também na tabela "users" apenas se o usuário foi criado com sucesso
     if (user != null) {
       await _registerUserInUsersTable(
         user.id,
@@ -64,23 +65,30 @@ class AuthService {
     int? semestre,
     String? periodo,
   }) async {
-    final existing =
-        await _supabase
-            .from('users')
-            .select('id')
-            .eq('id', userId)
-            .maybeSingle();
+    try {
+      // Verifica se o usuário já existe na tabela
+      final existing =
+          await _supabase
+              .from('users')
+              .select('id')
+              .eq('id', userId)
+              .maybeSingle();
 
-    if (existing == null) {
-      await _supabase.from('users').insert({
-        'id': userId,
-        'email': email,
-        'nome': nome,
-        'curso_id': cursoId,
-        if (semestre != null) 'semestre': semestre,
-        if (periodo != null) 'periodo': periodo,
-        'created_at': DateTime.now().toIso8601String(),
-      });
+      if (existing == null) {
+        // Insere apenas se não existir
+        await _supabase.from('users').insert({
+          'id': userId,
+          'email': email,
+          'nome': nome,
+          'curso_id': cursoId,
+          if (semestre != null) 'semestre': semestre,
+          if (periodo != null) 'periodo': periodo,
+          'created_at': DateTime.now().toIso8601String(),
+        });
+      }
+    } catch (e) {
+      print('Erro ao registrar usuário na tabela users: $e');
+      // Não re-throw para não quebrar o fluxo de cadastro
     }
   }
 

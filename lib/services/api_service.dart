@@ -1,17 +1,99 @@
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import '../config/app_config.dart';
+import 'dart:io';
 
 class ApiService {
   static final SupabaseClient _supabase = Supabase.instance.client;
 
+  // Configuração de timeout para conexões lentas
+  static const Duration _timeout = Duration(seconds: 30);
+  static const int _maxRetries = 3;
+
+  // Método para fazer requisições com retry
+  static Future<T> _makeRequestWithRetry<T>(
+    Future<T> Function() request,
+  ) async {
+    int attempts = 0;
+    while (attempts < _maxRetries) {
+      try {
+        return await request().timeout(_timeout);
+      } catch (e) {
+        attempts++;
+        print('Tentativa $attempts falhou: $e');
+
+        if (attempts >= _maxRetries) {
+          throw e;
+        }
+
+        // Aguarda um pouco antes de tentar novamente
+        await Future.delayed(Duration(seconds: attempts * 2));
+      }
+    }
+    throw Exception('Todas as tentativas falharam');
+  }
+
+  // Método para verificar conectividade com o Supabase
+  static Future<bool> checkConnectivity() async {
+    try {
+      await _makeRequestWithRetry(() async {
+        // Tenta fazer uma requisição simples para verificar conectividade
+        await _supabase.from('cursos').select('id').limit(1);
+      });
+      return true;
+    } catch (e) {
+      print('Erro de conectividade: $e');
+      return false;
+    }
+  }
+
+  // Método para diagnosticar problemas de rede
+  static Future<Map<String, dynamic>> diagnoseNetworkIssues() async {
+    final result = <String, dynamic>{};
+
+    try {
+      // Testa conectividade básica
+      result['basic_connectivity'] = await checkConnectivity();
+
+      // Testa DNS
+      try {
+        final internetAddress = await InternetAddress.lookup(
+          'neiedqopzdnievgmfbmt.supabase.co',
+        );
+        result['dns_resolution'] = internetAddress.isNotEmpty;
+      } catch (e) {
+        result['dns_resolution'] = false;
+        result['dns_error'] = e.toString();
+      }
+
+      // Testa timeout
+      try {
+        await _supabase
+            .from('cursos')
+            .select('id')
+            .limit(1)
+            .timeout(Duration(seconds: 10));
+        result['timeout_test'] = true;
+      } catch (e) {
+        result['timeout_test'] = false;
+        result['timeout_error'] = e.toString();
+      }
+    } catch (e) {
+      result['error'] = e.toString();
+    }
+
+    return result;
+  }
+
   // Métodos para usuários
   static Future<Map<String, dynamic>?> getUserData(String userId) async {
     try {
-      final response = await _supabase
-          .from('users')
-          .select('*')
-          .eq('id', userId)
-          .maybeSingle();
+      final response =
+          await _supabase
+              .from('users')
+              .select('*')
+              .eq('id', userId)
+              .maybeSingle();
       return response;
     } catch (e) {
       print('Erro ao buscar dados do usuário: $e');
@@ -40,11 +122,13 @@ class ApiService {
   }
 
   // Métodos para agendamentos
-  static Future<List<Map<String, dynamic>>> getAgendamentosHoje(String cursoId) async {
+  static Future<List<Map<String, dynamic>>> getAgendamentosHoje(
+    String cursoId,
+  ) async {
     try {
       final hoje = DateTime.now();
       final diaStr = _formatDate(hoje);
-      
+
       final response = await _supabase
           .from('agendamento')
           .select('''
@@ -76,7 +160,7 @@ class ApiService {
   ) async {
     try {
       final diaStr = _formatDate(data);
-      
+
       final response = await _supabase
           .from('agendamento')
           .select('''
@@ -111,11 +195,13 @@ class ApiService {
     }
   }
 
-  static Future<Map<String, dynamic>?> getProximaAulaHoje(String cursoId) async {
+  static Future<Map<String, dynamic>?> getProximaAulaHoje(
+    String cursoId,
+  ) async {
     try {
       final hoje = DateTime.now();
       final diaStr = _formatDate(hoje);
-      
+
       final response = await _supabase
           .from('agendamento')
           .select('''
@@ -145,7 +231,7 @@ class ApiService {
       if (response.length > 1) {
         final segundaAula = response[1];
         final horaInicioSegunda = _parseTime(segundaAula['hora_inicio']);
-        
+
         if (_isAfterOrEqual(agora, horaInicioSegunda)) {
           aulaIndex = 1;
         }
@@ -190,14 +276,17 @@ class ApiService {
   // Métodos para cursos
   static Future<List<Map<String, dynamic>>> getCursos() async {
     try {
-      final response = await _supabase
-          .from('cursos')
-          .select('*')
-          .order('curso');
+      return await _makeRequestWithRetry(() async {
+        final response = await _supabase
+            .from('cursos')
+            .select('*')
+            .order('curso');
 
-      return List<Map<String, dynamic>>.from(response);
+        return List<Map<String, dynamic>>.from(response);
+      });
     } catch (e) {
       print('Erro ao buscar cursos: $e');
+      // Retorna lista vazia em caso de erro para não quebrar a UI
       return [];
     }
   }
@@ -231,4 +320,4 @@ class ApiService {
       return [];
     }
   }
-} 
+}

@@ -132,13 +132,8 @@ class _RegisterPageState extends State<RegisterPage> {
         return;
       }
 
-      final supabase = Supabase.instance.client;
-
-      // INSIRA O USUÁRIO NA TABELA USERS COM O CURSO_ID
-      await supabase
-          .from('users')
-          .update({'nome': nome, 'email': email, 'curso_id': cursoId})
-          .eq('id', user.id);
+      // O usuário já foi inserido na tabela users pelo AuthService
+      // Não precisamos fazer nada adicional aqui
 
       if (mounted) {
         Navigator.pushReplacement(
