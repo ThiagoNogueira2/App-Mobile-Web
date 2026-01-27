@@ -32,6 +32,8 @@ migrate_working_dir/
 .pub-cache/
 .pub/
 /build/
+# Exceção: permitir build/web para deploy no Vercel
+!/build/web/
 
 # Symbolication related
 app.*.symbols
